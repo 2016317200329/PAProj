@@ -1,5 +1,6 @@
 # 忽略所有以.a结尾的文件
 *.csv
+*.tsv
 
 # 虽然指定了.a模式，但是允许git跟踪lib.a文件
 !traces20.tsv
