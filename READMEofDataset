@@ -1,0 +1,85 @@
+These datasets were collected and used for the following paper:
+
+John Byers, Michael Mitzenmacher & Georgios Zervas:
+"Information Asymmetries in Pay-Per-Bid Auctions: How Swoopo Makes Bank".
+
+For questions regarding this dataset please contact Georgios Zervas.
+
+OUTCOMES DATASET (outcomes.tsv)
+-------------------------------
+The outcomes dataset is provided in TSV format and contains the following columns:
+
+- A unique numerical id for the auction
+
+- product_id: A unique product id
+
+- item: A text string describing the product
+
+- desc: More information about the product
+
+- retail: The stated retail value of the item, in dollars
+
+- price: The price the auction reached, in dollars
+
+- finalprice: The price charged to the winner in dollars
+
+- bidincrement: The price increment of a bid, in cents
+
+- bidfee: The cost incurred to make a bid, in cents
+
+- winner: The winner's username
+
+- placedbids: The number of paid bids placed by the winner
+
+- freebids: The number of free bids place by the winner
+
+- endtime_str: The auction's end time
+
+- flg_click_only: A binary flag indicating a ``NailBiter'' auction
+
+- flg_beginnerauction: A binary flag indicating a beginner auction
+
+- flg_fixedprice: A binary flag indicating a fixed-price auction
+
+- flg_endprice: A binary flag indicating a 100\%-off auction
+
+
+TRACES DATASET (traces.tsv)
+---------------------------
+The traces dataset is provided in TSV format and contains the following columns:
+
+- auction_id: the auction id
+
+- bid_time: the date and time of the bid
+
+- bid_ct: the value of the countdown clock at the time the bid was reported to
+  us, in seconds
+
+- bid_number: the number of the bid (1 for the first bid, 2 for the second one,
+  and so on)
+
+- bid_user: the username of the bidder
+
+- bid_butler: 1 for BidButler bids, 0 otherwise
+
+- bid_cp: the price of the item after the bid was placed
+
+- bid_user_secs_added: the number of seconds added to the countdown clock as a
+  result non-BidButler bids in this bid group
+
+- bid_butler_secs_added: the number of seconds added to the countdown clock as
+  a result BidButler bids in this bid group
+
+- bid_infered: 0 for the final bid in a bid group, 1 otherwise (see note below)
+
+- bid_group: bids that were reported as part of the same group will have the
+  same group number
+
+- bid_final: 1 for the winning (ie, last) bid, 0 otherwise
+
+The other parameters of the auction can be looked up in outcomes.tsv using the
+auction_id field.
+
+Note on bid groups: Occassionaly, between successive probes, more than one bids
+would have occured and would be reported together. We call this a bid group.
+All bids in a bid group have been ascribed the same timestamp.
