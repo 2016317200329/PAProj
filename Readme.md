@@ -38,18 +38,18 @@ trace_path = 'D:\\Desktop\\PROJ\\PracticePA\\data\\traces20.tsv'
    24            60         4218
 ```
 
-## `traces.tsv`
+## *traces.tsv*
 1. traces中的auction是否都出现在了`outcomes.tsv`中呢？**YES**
 2. 一共记录了7353场auction
-## `outcomes20.tsv`
+## *outcomes20.tsv*
 - 是为了便于测试，进行设计的大概30行的data
-## `traces20.tsv`
+## *traces20.tsv*
 - 是为了便于测试，进行设计的大概30行的data
-## `common_auction_id.csv`
+## *common_auction_id.csv*
 - 记录了2个dataset共有的auction_id，产生于`BasicInfo/calculate_n.py`
 - 一共有7353个共有的auction_id
 
-## `data_withn.csv`
+## *data_withn.csv*
 1. 产生于`BasicInfo/calculate_n.py`，记录了2个dataset共有的auction_id，用2个方法计算出来的n值，以及training可以用到的属性
 2. 统计结果如下，7353场auction中一共有**5个** ['bidincrement','bidfee'] 组合，数量如下 
 ```angular2html
