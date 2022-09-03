@@ -24,7 +24,7 @@ trace_path = 'D:\\Desktop\\PROJ\\PracticePA\\data\\traces20.tsv'
 
 1. 一共有*10个* ['bidincrement','bidfee'] 组合，数量如下 
    
-   ```angular2html
+```angular2html
    bidincrement  bidfee
    1             60         1794
               75        11717
@@ -36,16 +36,15 @@ trace_path = 'D:\\Desktop\\PROJ\\PracticePA\\data\\traces20.tsv'
    15            60           25
               75        65971
    24            60         4218
-   ```
+```
 
-```python
 ## `traces.tsv`
 1. traces中的auction是否都出现在了`outcomes.tsv`中呢？**YES**
 2. 一共记录了7353场auction
 ## `outcomes20.tsv`
+- 是为了便于测试，进行设计的大概30行的data
 ## `traces20.tsv`
 - 是为了便于测试，进行设计的大概30行的data
-- 
 ## `common_auction_id.csv`
 - 记录了2个dataset共有的auction_id，产生于`BasicInfo/calculate_n.py`
 - 一共有7353个共有的auction_id
@@ -130,7 +129,7 @@ max    471.000000  1.001548e+07     24.000000    60.0  419.000000
 
 
 
-# 规范命名
+# 规范命名[never use them]
 
 1. 类名： 单词首字母大写,单词无分隔
    参考：`class Logrecord(object):`
