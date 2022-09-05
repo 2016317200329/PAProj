@@ -3,6 +3,7 @@
 # 测试data的路径
 
 outcome_path = 'D:\\Desktop\\PROJ\\PracticePA\\data\\outcomes20.tsv'
+
 trace_path = 'D:\\Desktop\\PROJ\\PracticePA\\data\\traces20.tsv'
 
 # test_on_smalldata

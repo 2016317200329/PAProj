@@ -7,6 +7,12 @@
 
 import os
 import pandas as pd
+import torch
+import torch.utils.data
+from torch.utils.data import Dataset
+from torch.utils.data import DataLoader
+import torch.nn as nn
+import torch.nn.functional as F
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -23,3 +29,6 @@ pd.set_option('display.width', 1000000)
 # 原data路径
 outcomes_orignal_path = "../data/outcomes.tsv"
 traces_original_path = "../data/traces.tsv"
+
+#
+torch.set_default_tensor_type(torch.DoubleTensor)

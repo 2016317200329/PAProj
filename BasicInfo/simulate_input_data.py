@@ -99,7 +99,7 @@ for i in range(n_of_files):
     output_file_path = output_file_head + str(i) + output_file_tail
     data.to_csv(output_file_path,index=False)
 
-
+# 只运行一次就可以，平时注释掉
 # # 5. select target data according to data_withnp_1_selectedkeys.csv
 # # when [product_id,bidincrement,bidfee] are the same
 # data_withnp_1 = pd.read_csv(data_withnp_1_path)
@@ -108,5 +108,13 @@ for i in range(n_of_files):
 # # 用merge方法筛选数据！
 # data_withnp_1_selected = pd.merge(data_withnp_1,keys[features],how="inner",on=features)
 # data_withnp_1_selected.to_csv(data_withnp_1_selected_path,index=False)
+
+# 只运行一次就可以，平时注释掉
+# 6. Combine data_withnp_1_selected with ../data/sim_data/xxx respectively according to keys
+# 根据key，在每一个training data的最后贴上target data，方便用dataloader读取，当然不用dataloader也可以
+data_withnp_1_selected = pd.read_csv(data_withnp_1_selected_path)
+
+
+
 
 print("SUCCESS\n")
