@@ -100,6 +100,5 @@ class myDataset(Dataset):
         target_data_withkey = target_data_df[(target_data_df.product_id == key[0]) & (target_data_df.bidincrement == key[1]) & (target_data_df.bidfee == key[2])].copy()
         target_data_withkey.drop(columns=["cnt_n_1"], inplace=True)
         train_data = torch.tensor(np.array(train_data_df))
-        target_data_withkey.drop()
         target_data_withkey = torch.tensor(np.array(target_data_withkey))
         return train_data, target_data_withkey
