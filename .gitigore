@@ -3,8 +3,8 @@
 !data/outcomes20.tsv
 
 # 忽略所有以.a结尾的文件
-*.csv
-*.tsv
+data/*.csv
+data/*.tsv
 
 
 # 忽略doc文件夹下以.txt结尾的文件，不包含doc同一目录层级下的.txt
