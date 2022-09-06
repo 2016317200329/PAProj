@@ -84,7 +84,7 @@ class Mlp(nn.Module):
         sigma = torch.mean(tmp,dim=0)
         return pi, mu, sigma
 
-# 3.损失函数: 最大似然
+# 3.损失函数: 最大似然!
 # 计算loss的时候，需要用NN【额外】做一下infer，然后和target比较
 def loss_fn(mu, sigma, pi, y):
     y = torch.squeeze(y)
@@ -115,7 +115,7 @@ for i in range(epoch):
     for data in train_iter:
         input, target = data
         pi, mu, sigma = mlp(input)
-        output = torch.distributions.Normal(loc=mu, scale=sigma)
+        # output = torch.distributions.Normal(loc=mu, scale=sigma)
         loss = loss_fn(pi, mu, sigma, target)
         optimizer.zero_grad()
         loss.backward()
