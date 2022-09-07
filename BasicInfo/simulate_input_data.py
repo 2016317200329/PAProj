@@ -112,9 +112,4 @@ for i in range(n_of_files):
 # 只运行一次就可以，平时注释掉
 # 6. Combine data_withnp_1_selected with ../data/sim_data/xxx respectively according to keys
 # 根据key，在每一个training data的最后贴上target data，方便用dataloader读取，当然不用dataloader也可以
-data_withnp_1_selected = pd.read_csv(data_withnp_1_selected_path)
-
-
-
-
 print("SUCCESS\n")

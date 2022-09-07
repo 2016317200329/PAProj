@@ -124,7 +124,7 @@ max    471.000000  1.001548e+07     24.000000    60.0  419.000000
 
 ## *./sim_data/xxx*
 
-1. 产生于`simulate_input_data.py`，下策，依照power-law采样出一些data来当做真实的GT模型的估计数据，注意加上列属性[product_id,bidincrement,bidfee]
+1. 产生于`simulate_input_data.py`，只需要run代码的part 1-4就可以产生data。下策，依照power-law采样出一些data来当做真实的GT模型的估计数据，注意加上列属性[product_id,bidincrement,bidfee]
 
 2. 生成多个组的data呢？依照*data_withnp_1_selectedkeys.csv*来定的。一个文件对应了一个setting，对应了*data_withnp_1_selectedkeys.csv*的一行
 

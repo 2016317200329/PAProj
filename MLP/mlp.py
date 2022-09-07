@@ -7,6 +7,7 @@
 # @TODO: 画图细化一下training的流程：怎么用target data/ NN的规模/ batch size等
 
 from BasicInfo.common_settings import *
+from torchsummary import summary
 import mydataset
 import torch.utils.data
 # from torch.utils.tensorboard import SummaryWriter
@@ -81,17 +82,22 @@ class Mlp(nn.Module):
         tmp = self.z_mu(mlp_output)
         mu = torch.mean(tmp,dim=0)
         tmp = torch.exp(self.z_sigma(mlp_output))
-        sigma = torch.mean(tmp,dim=0)
+        # sigma has to be positive
+        sigma = torch.abs(torch.mean(tmp,dim=0))
         return pi, mu, sigma
 
 # 3.损失函数: 最大似然!
 # 计算loss的时候，需要用NN【额外】做一下infer，然后和target比较
-def loss_fn(mu, sigma, pi, y):
+def loss_fn(pi, mu, sigma, y):
     y = torch.squeeze(y)
+    print("y shape: ",y.shape)
+    print("mu shape: ", mu.shape)
+    print("sigma shape: ", sigma.shape)
     m = torch.distributions.Normal(loc=mu, scale=sigma)
     # log_prob：Returns the log of the prob. density/mass function evaluated at value.
     # log_prob(value)是计算value在定义的正态分布m中对应的概率的对数!!
-    loss_1 = torch.exp(m.log_prob(y))
+    # TODO: ERROR here
+    loss_1 = torch.exp(m.log_prob(y.T))
     # 返回输入张量给定维度上每行的和,dim为1会计算每个维度上的和
     # 用pi加权求和，被求和的是概率。TODO：check一下这个值是不是直接可以和预测值作比
     # 对应Bishop论文式22
@@ -106,6 +112,7 @@ def loss_fn(mu, sigma, pi, y):
 # 4.1 实例化mlp和优化器
 mlp = Mlp(N_gaussians)
 # learning_rate = 0.01
+summary(mlp, input_size=(160,N_gaussians), batch_size=-1)
 optimizer = torch.optim.SGD(mlp.parameters(), lr=learning_rate)
 
 # 4.2 训练与测试
@@ -116,6 +123,7 @@ for i in range(epoch):
         input, target = data
         pi, mu, sigma = mlp(input)
         # output = torch.distributions.Normal(loc=mu, scale=sigma)
+        print("target shape: ",target.shape)
         loss = loss_fn(pi, mu, sigma, target)
         optimizer.zero_grad()
         loss.backward()
