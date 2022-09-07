@@ -1,30 +1,23 @@
-<u>本文件介绍了这个proj各个文件夹/ 文件/ data 的说明，以及对于进度的说明</u>
+<u>这里介绍了这个proj各个文件夹/ 文件/ data 的说明，以及对于进度的说明</u>
 
-Header: X-Commonmarker-Version=0.23.5
-Header: Access-Control-Expose-Headers=ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Used, X-RateLimit-Resource, X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, X-GitHub-SSO, X-GitHub-Request-Id, Deprecation, Sunset
-Header: X-Xss-Protection=0
-Header: Server=GitHub.com
-Header: Date=Wed, 07 Sep 2022 08:35:46 GMT
-Header: X-Ratelimit-Reset=1662543346
-Header: X-Ratelimit-Resource=core
-Header: X-Frame-Options=deny
-Header: Content-Security-Policy=default-src 'none'
-Header: Vary=Accept-Encoding, Accept, X-Requested-With
-Header: Content-Type=text/html;charset=utf-8
-Header: X-Ratelimit-Used=1
-Header: Access-Control-Allow-Origin=*
-Header: Strict-Transport-Security=max-age=31536000; includeSubdomains; preload
-Header: X-Content-Type-Options=nosniff
-Header: Referrer-Policy=origin-when-cross-origin, strict-origin-when-cross-origin
-Header: X-Ratelimit-Limit=60
-Header: X-Ratelimit-Remaining=59
-Header: X-Github-Request-Id=46CE:5FB1:4C451A:4EB926:631857E2
+* [测试data的路径](#测试data的路径)
+* [test_on_smalldata](#test_on_smalldata)
+* [BasicInfo](#BasicInfo)
+* [MLP](#MLP)
+* [data](#data)
+  * [outcomes.tsv](##outcomes.tsv)
+  * [traces.tsv](##traces.tsv)
+  * [common_auction_id.csv](##common_auction_id.csv)
+  * [data_withn.csv](##data_withn.csv)
+  * [data_withnp_1.csv](##data_withnp_1.csv)
+  * [data_withnp_2.csv](##data_withnp_2.csv)
+  * [data_withnp_1_selectedkeys.csv](##data_withnp_1_selectedkeys.csv)
+  * [data_withnp_1_selected.csv](##data_withnp_1_selected.csv)
+  * [./sim_data/xxx](##./sim_data/xxx)
+* [规范命名[never use them]](#规范命名[never use them])
+  
 
-
-
-
-
-# # 测试data的路径
+# 测试data的路径
 
 outcome_path = 'D:\\Desktop\\PROJ\\PracticePA\\data\\outcomes20.tsv'
 
