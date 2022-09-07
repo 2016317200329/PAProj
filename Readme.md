@@ -1,6 +1,30 @@
 <u>本文件介绍了这个proj各个文件夹/ 文件/ data 的说明，以及对于进度的说明</u>
 
-# 测试data的路径
+Header: X-Commonmarker-Version=0.23.5
+Header: Access-Control-Expose-Headers=ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Used, X-RateLimit-Resource, X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, X-GitHub-SSO, X-GitHub-Request-Id, Deprecation, Sunset
+Header: X-Xss-Protection=0
+Header: Server=GitHub.com
+Header: Date=Wed, 07 Sep 2022 08:35:46 GMT
+Header: X-Ratelimit-Reset=1662543346
+Header: X-Ratelimit-Resource=core
+Header: X-Frame-Options=deny
+Header: Content-Security-Policy=default-src 'none'
+Header: Vary=Accept-Encoding, Accept, X-Requested-With
+Header: Content-Type=text/html;charset=utf-8
+Header: X-Ratelimit-Used=1
+Header: Access-Control-Allow-Origin=*
+Header: Strict-Transport-Security=max-age=31536000; includeSubdomains; preload
+Header: X-Content-Type-Options=nosniff
+Header: Referrer-Policy=origin-when-cross-origin, strict-origin-when-cross-origin
+Header: X-Ratelimit-Limit=60
+Header: X-Ratelimit-Remaining=59
+Header: X-Github-Request-Id=46CE:5FB1:4C451A:4EB926:631857E2
+
+
+
+
+
+# # 测试data的路径
 
 outcome_path = 'D:\\Desktop\\PROJ\\PracticePA\\data\\outcomes20.tsv'
 
@@ -24,7 +48,7 @@ trace_path = 'D:\\Desktop\\PROJ\\PracticePA\\data\\traces20.tsv'
 ## *outcomes.tsv*
 
 1. 一共有*10个* ['bidincrement','bidfee'] 组合，数量如下 
-   
+
 ```angular2html
    bidincrement  bidfee
    1             60         1794
@@ -40,27 +64,33 @@ trace_path = 'D:\\Desktop\\PROJ\\PracticePA\\data\\traces20.tsv'
 ```
 
 ## *traces.tsv*
+
 1. traces中的auction是否都出现在了`outcomes.tsv`中呢？**YES**
 2. 一共记录了7353场auction
-## *outcomes20.tsv*
+   
+   ## *outcomes20.tsv*
 - 是为了便于测试，进行设计的大概30行的data
-## *traces20.tsv*
+  
+  ## *traces20.tsv*
 - 是为了便于测试，进行设计的大概30行的data
-## *common_auction_id.csv*
+  
+  ## *common_auction_id.csv*
 - 记录了2个dataset共有的auction_id，产生于`BasicInfo/calculate_n.py`
 - 一共有7353个共有的auction_id
 
 ## *data_withn.csv*
+
 1. 产生于`BasicInfo/calculate_n.py`，记录了2个dataset共有的auction_id，用2个方法计算出来的n值，以及training可以用到的属性
 2. 统计结果如下，7353场auction中一共有**5个** ['bidincrement','bidfee'] 组合，数量如下 
-```angular2html
-bidincrement  bidfee
-1             60         143
-2             60         112
-6             60        1478
-12            60        5220
-24            60         400
-```
+   
+   ```angular2html
+   bidincrement  bidfee
+   1             60         143
+   2             60         112
+   6             60        1478
+   12            60        5220
+   24            60         400
+   ```
 
 `outcomes.tsv`是**10个**！！data_withn只包括bidfee为60的data！**which means `traces.tsv`只包括bidfee==60的auction**
 3. 一共有unique setting **472**个
@@ -118,7 +148,7 @@ max    471.000000  1.001548e+07     24.000000    60.0  419.000000
 
 ## *data_withnp_1_selected.csv*
 
-1.  这个就是由上述key文件，从`data_withnp_1.csv`中select的data，作为target data使用
+1. 这个就是由上述key文件，从`data_withnp_1.csv`中select的data，作为target data使用
 
 2. `simulate_input_data.py`最后一段有代码，可以随意挪用
 
@@ -127,8 +157,6 @@ max    471.000000  1.001548e+07     24.000000    60.0  419.000000
 1. 产生于`simulate_input_data.py`，只需要run代码的part 1-4就可以产生data。下策，依照power-law采样出一些data来当做真实的GT模型的估计数据，注意加上列属性[product_id,bidincrement,bidfee]
 
 2. 生成多个组的data呢？依照*data_withnp_1_selectedkeys.csv*来定的。一个文件对应了一个setting，对应了*data_withnp_1_selectedkeys.csv*的一行
-
-
 
 # 规范命名[never use them]
 
