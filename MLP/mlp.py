@@ -82,8 +82,10 @@ class Mlp(nn.Module):
         tmp = self.z_mu(mlp_output)
         mu = torch.mean(tmp,dim=0)
         tmp = torch.exp(self.z_sigma(mlp_output))
-        # sigma has to be positive
-        sigma = torch.abs(torch.mean(tmp,dim=0))
+        # sigma has to be positive, 如果tmp有任何<0的元素，Assert
+        torch._assert((torch.nonzero(tmp<0, as_tuple=False).shape[0]<=0),"Sigma is less than zero!")
+        sigma = torch.mean(tmp,dim=0)
+        del(tmp)
         return pi, mu, sigma
 
 # 3.损失函数: 最大似然!
@@ -97,10 +99,11 @@ def loss_fn(pi, mu, sigma, y):
     # log_prob：Returns the log of the prob. density/mass function evaluated at value.
     # log_prob(value)是计算value在定义的正态分布m中对应的概率的对数!!
     # TODO: ERROR here
-    loss_1 = torch.exp(m.log_prob(y.T))
+    loss_1 = torch.exp(m.log_prob(y))
     # 返回输入张量给定维度上每行的和,dim为1会计算每个维度上的和
     # 用pi加权求和，被求和的是概率。TODO：check一下这个值是不是直接可以和预测值作比
     # 对应Bishop论文式22
+    # contextual features
     loss_2 = torch.sum(loss_1 * pi, dim=1)
     # 把概率变负的log，方便梯度下降
     # 对应Bishop论文式29
@@ -112,7 +115,7 @@ def loss_fn(pi, mu, sigma, y):
 # 4.1 实例化mlp和优化器
 mlp = Mlp(N_gaussians)
 # learning_rate = 0.01
-summary(mlp, input_size=(160,N_gaussians), batch_size=-1)
+# summary(mlp, input_size=(160,N_gaussians), batch_size=-1)
 optimizer = torch.optim.SGD(mlp.parameters(), lr=learning_rate)
 
 # 4.2 训练与测试
@@ -160,6 +163,6 @@ for i in range(epoch):
     total_test_step = total_test_step + 1
 
     # 保存每一个epoch的模型结果
-    torch.save(mlp, "mlp_model_{}.pth".format(i))
+    # torch.save(mlp, "mlp_model_{}.pth".format(i))
 
 print("SUCCESS\n")
