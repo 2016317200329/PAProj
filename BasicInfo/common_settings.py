@@ -3,7 +3,7 @@
 # @Time    : 2022/5/25 21:24
 # @Author  : Wang Yujia
 # @File    : common_settings.py
-# @Description : 公共设置：python包，输出路径，输入路径，print范围
+# @Description : 涉及的各种python包，输出路径，输入路径，print范围
 
 import os
 import pandas as pd

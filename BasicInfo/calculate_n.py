@@ -14,8 +14,13 @@ output_file = "../data/data_withn.csv"
 data_withn_path = "../data/data_withn.csv"
 data_withnp_1_path = "../data/data_withnp_1.csv"
 data_withnp_2_path = "../data/data_withnp_2.csv"
+common_auction_id_path = "../data/common_auction_id.csv"
 data_selected_key_1_path = "../data/data_withnp_1_selectedkeys.csv"
 data_selected_key_2_path = "../data/data_withnp_2_selectedkeys.csv"
+# 打算提取出来的data features
+features_extracted = ['auction_id','product_id','bidincrement','bidfee']
+# 样本数在threshold之下的settings不予考虑
+threshold = 16
 
 
 def method_1():
@@ -28,29 +33,27 @@ def method_1():
     # 读取tsv，并且outcomes只保留需要的几列数据
     outcomes = pd.read_csv(outcomes_orignal_path, sep='\t')
     traces = pd.read_csv(traces_original_path, sep='\t')
-    outcomes = outcomes[['auction_id', 'product_id', 'bidincrement', 'bidfee']]
+    outcomes = outcomes[features_extracted]
 
     # 提取2个dataset共有的auction_id: `common_auction_id`
     common_auction_id = traces[traces['auction_id'].isin(outcomes['auction_id'])]
     common_auction_id = pd.DataFrame(common_auction_id['auction_id'].unique())
     # 以csv的形式保存下`common_auction_id`： "../data/method_1_data_withn.csv"
-    output_file_id = "../data/common_auction_id.csv"
     common_auction_id.columns = ['auction_id']
-    common_auction_id.to_csv(output_file_id, encoding="utf-8")
+    common_auction_id.to_csv(common_auction_id_path, encoding="utf-8")
 
     # 从outcomes中提取共有的auction_id的所有setting: common_auction_settings
     common_auction_settings = outcomes[outcomes['auction_id'].isin(common_auction_id['auction_id'])]
 
     # traces数据groupby，数n，并且保留需要的列: trace_groupby_auctionid
-    trace_groupby_auctionid = traces.groupby('auction_id')
-    trace_groupby_auctionid = trace_groupby_auctionid.count()['bid_number'].to_frame()
-    temp = trace_groupby_auctionid.index.to_frame()
-    trace_groupby_auctionid['auction_id'] = temp
-    trace_groupby_auctionid.columns=['n_1','auction_id']
+    trace_grouped = traces.groupby('auction_id')
+    trace_groupby_auctionid = trace_grouped.count()['bid_user'].to_frame()
+    # 整理以下data，index是'auction_id'，把index变成一列
+    # reset index，不然报错：“'auction_id' is both an index level and a column label, which is ambiguous.”
+    trace_groupby_auctionid.reset_index(drop=False, inplace=True)
+    trace_groupby_auctionid.columns = ['auction_id', 'n_1']
 
     # 左连接两表，扩充traces数据：data_withn
-    # reset index，不然报错：“'auction_id' is both an index level and a column label, which is ambiguous.”
-    trace_groupby_auctionid.reset_index(drop=True, inplace=True)
     data_withn = pd.merge(trace_groupby_auctionid, common_auction_settings, on='auction_id', how="left")
 
     # 以csv的形式写入 "../data/method_1_data_withn.csv"
@@ -190,8 +193,8 @@ def select_data(threshold):
         data_ordered = tmp.sort_values(by=['size'], ascending=True)
         data_ordered.reset_index(inplace=True)
 
-        # 2. 设置取data的阈值，并且保存这些selected data的setting, 可以当做key使用: data_selected_key
-        # 表示样本数:(data_ordered['size'])在threshold之上的才会被考虑进data_selected
+        # 2. 根据阈值，提取并保存selected data的setting, 可以当做key使用: data_selected_key
+        # 样本数:(data_ordered['size'])在threshold之上的settings才会被考虑进data_selected
         data_selected = data_ordered[data_ordered['size'] >= threshold][:]
         data_selected_key = data_selected[['product_id','bidincrement','bidfee']]
         data_selected_key.to_csv(data_selected_key_1_path, header=True, encoding="utf-8")
@@ -222,7 +225,7 @@ if __name__ == '__main__':
     if(flag):
         print("\n cal_p() which calculated the 'p' is SUCCESSFUL \n")
 
-    threshold = 16
+    # threshold = 16
     flag = select_data(threshold)
     if(flag):
         print("\n select_data() which selects data according to the threshold is SUCCESSFUL \n")

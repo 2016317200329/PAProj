@@ -1,20 +1,5 @@
 <u>这里介绍了这个proj各个文件夹/ 文件/ data 的说明，以及对于进度的说明</u>
-
-* [测试data的路径](#测试data的路径)
-* [test_on_smalldata](#test_on_smalldata)
-* [BasicInfo](#BasicInfo)
-* [MLP](#MLP)
-* [data](#data)
-  * [outcomes.tsv](##outcomes.tsv)
-  * [traces.tsv](##traces.tsv)
-  * [common_auction_id.csv](##common_auction_id.csv)
-  * [data_withn.csv](##data_withn.csv)
-  * [data_withnp_1.csv](##data_withnp_1.csv)
-  * [data_withnp_2.csv](##data_withnp_2.csv)
-  * [data_withnp_1_selectedkeys.csv](##data_withnp_1_selectedkeys.csv)
-  * [data_withnp_1_selected.csv](##data_withnp_1_selected.csv)
-  * [./sim_data/xxx](##./sim_data/xxx)
-* [规范命名[never use them]](#规范命名[never use them])
+[TOC]
 
 # 测试data的路径
 
@@ -61,14 +46,14 @@ trace_path = 'D:\\Desktop\\PROJ\\PracticePA\\data\\traces20.tsv'
 
 2. 一共记录了7353场auction
    
-   ## *outcomes20.tsv*
+## *outcomes20.tsv*
 - 是为了便于测试，进行设计的大概30行的data
   
-  ## *traces20.tsv*
+## *traces20.tsv*
 
 - 是为了便于测试，进行设计的大概30行的data
   
-  ## *common_auction_id.csv*
+## *common_auction_id.csv*
 
 - 记录了2个dataset共有的auction_id，产生于`BasicInfo/calculate_n.py`
 
@@ -154,6 +139,16 @@ max    471.000000  1.001548e+07     24.000000    60.0  419.000000
 1. 产生于`simulate_input_data.py`，只需要run代码的part 1-4就可以产生data。下策，依照power-law采样出一些data来当做真实的GT模型的估计数据，注意加上列属性[product_id,bidincrement,bidfee]
 
 2. 生成多个组的data呢？依照*data_withnp_1_selectedkeys.csv*来定的。一个文件对应了一个setting，对应了*data_withnp_1_selectedkeys.csv*的一行
+
+## info_asymm
+### *info_asymm/datawithnp_asc_symmetry.csv*
+1. 产生于../data_handler/data_extract_for_asc_symmetry.ipynb
+2. 基于`calculate_n.py`,重新对数据进行整理。其实主要目的是把“price”和“fixed-price”什么的筛选出来
+3. 未经过threshold筛选
+
+### *info_asymm/datawithnp_asc_symmetry_selected.csv*
+1. 产生于../data_handler/data_extract_for_asc_symmetry.ipynb
+2. 经过threshold筛选
 
 # 规范命名[never use them]
 
