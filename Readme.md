@@ -83,7 +83,7 @@ trace_path = 'D:\\Desktop\\PROJ\\PracticePA\\data\\traces20.tsv'
 1. 产生于`calculate_n.py`的函数`cal_p()`,对第1个方法算出来的 ‘n’ 对应的 ‘p’ 进行计算
 2. 有**6133** 条data，有**472**个unique setting
 3. 列属性为：[product_id,bidincrement,bidfee, n_1,cnt_n_1,p_1]，释义是：对应于一个unique setting [product_id,bidincrement,bidfee], 有`cnt_n_1`场拍卖结束于`n_1`轮，这4个比例在当前setting下占比为`p_1`，
-4. **在1.中的'n'指的是`cnt_n_1`，'p'指的是`p_1`**
+4. **'n'指的是`n_1`，'p'指的是`p_1`**
 5. 根据`basicinfo_datawithnp.py`的分析，可以看到每个setting下样本不是很丰富, 75%分位数的样本数只有14（个）
 
 ```angular2html
