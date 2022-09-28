@@ -20,6 +20,12 @@ trace_path = 'D:\\Desktop\\PROJ\\PracticePA\\data\\traces20.tsv'
 
 1. `mlp`主要用来设计mlp，初步测试思想
 
+# data_handeler
+1. 一些对于data进行处理的代码
+
+## data_extract_for_asc_symmetry.ipynb
+1. 处理数据，为了增价拍卖+info不对称的paper但是用的是对称模型
+
 # data
 
 ## *outcomes.tsv*
@@ -144,11 +150,14 @@ max    471.000000  1.001548e+07     24.000000    60.0  419.000000
 ### *info_asymm/datawithnp_asc_symmetry.csv*
 1. 产生于../data_handler/data_extract_for_asc_symmetry.ipynb
 2. 基于`calculate_n.py`,重新对数据进行整理。其实主要目的是把“price”和“fixed-price”什么的筛选出来
-3. 未经过threshold筛选
+3. 注意其实traces.tsv里并没有记录任何fixed-price auction
+4. unique_setting = ['product_id', 'bidincrement', 'bidfee','retail']，多了个'retail'
+5. 未经过threshold筛选
 
 ### *info_asymm/datawithnp_asc_symmetry_selected.csv*
 1. 产生于../data_handler/data_extract_for_asc_symmetry.ipynb
 2. 经过threshold筛选
+3. 可以发现，当threshold=16时，`unique_setting`增加一项'retail'会让筛选后的data从4614行变成3838
 
 # 规范命名[never use them]
 
