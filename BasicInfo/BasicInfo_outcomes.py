@@ -4,7 +4,7 @@
 # @Author  : Wang Yujia
 # @File    : BasicInfo_outcomes.py
 # @Description : 关于outcomes数据集的一些信息,参考test1.py test2_traces20.py test3.py
-# TODO： 2.把print进化一下直接在txt中打印
+# TODO：
 
 import pandas as pd
 import numpy as np
