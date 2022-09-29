@@ -14,7 +14,8 @@ trace_path = 'D:\\Desktop\\PROJ\\PracticePA\\data\\traces20.tsv'
 
 # BasicInfo
 
-1.输出了一些数据集的信息
+1.输出了一些数据集的basic信息
+2. notebook比较好不要写.py了
 
 # MLP
 
@@ -25,6 +26,11 @@ trace_path = 'D:\\Desktop\\PROJ\\PracticePA\\data\\traces20.tsv'
 
 ## data_extract_for_asc_symmetry.ipynb
 1. 处理数据，为了增价拍卖+info不对称的paper但是用的是对称模型
+
+## GT_model/GT_asc_symmetry_gen.ipynb
+1. 根据同路径下的GT_asc_symmetry_gen_demo.ipynb，针对所有setting，利用GT model进行预测，生成所需数据
+2. GT模型是对称模型，包括fixed和ascending两个情况
+3. 生成的data在data/info_asymm/results下
 
 # data
 
