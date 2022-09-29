@@ -63,7 +63,7 @@ def method_1():
 
 def method_2():
     """
-    第2个计算n的方法：通过2个dataset共有的auction_id，在outcomes数据集中通过(finalprice-price)/bidincrement来计算
+    第2个计算n的方法：通过2个dataset共有的auction_id，在outcomes数据集中通过(price-0)/bidincrement来计算
 
     :return: flag
     """
