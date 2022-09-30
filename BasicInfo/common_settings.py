@@ -15,6 +15,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 # print输出在:
 txt = "../BasicInfo_outcomes.txt"

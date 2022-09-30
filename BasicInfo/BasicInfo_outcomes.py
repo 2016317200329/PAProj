@@ -6,19 +6,10 @@
 # @Description : 关于outcomes数据集的一些信息,参考test1.py test2_traces20.py test3.py
 # TODO：
 
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
+from common_settings import *
 
 # print输出在:
 txt = "../BasicInfo_outcomes.txt"
-
-
-# 设置长输出
-pd.set_option('display.max_columns', 1000000)   # 可以在大数据量下，没有省略号
-pd.set_option('display.max_rows', 1000000)
-pd.set_option('display.max_colwidth', 1000000)
-pd.set_option('display.width', 1000000)
 
 # 原data路径
 outcomes_orignal_path = "../data/outcomes.tsv"
