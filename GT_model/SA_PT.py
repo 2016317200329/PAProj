@@ -9,36 +9,6 @@ import numpy as np
 from sko.base import SkoBase
 from sko.operators import mutation
 
-##------------------------------ wyj ADD below---------------------------------------------
-import sympy
-
-def C(t,b):
-    return 0.2*t*b
-
-def OMEGA(p,delta):
-    return p**delta * ((p**delta + (1-p)**delta)**(-1/delta))
-
-# valuation function
-def f(x, alpha):
-    return (1-sympy.E**(-alpha*x))/alpha
-    # when x < 0, in fact, it shoule be : (-labda)*(1-sympy.E**(alpha*x))/alpha
-
-def f_Equi(t,v,d,b,alpha,labda,delta):
-    u = sympy.Symbol('u')
-
-    tmp = v-d*t-C(t-1,b) - b
-
-    func_1 = (labda * f(x=C(t-1, b), alpha=alpha) - labda * OMEGA(u, delta) * f(x=(C(t-1, b) + b), alpha=alpha) + OMEGA(1-u, delta) * f(tmp, alpha))
-    func_2 = (-f(x=C(t-1, b), alpha=alpha) + OMEGA(u, delta) * f(x=(C(t-1, b) + b), alpha=alpha) + (1 - OMEGA(u, delta)) * f(-tmp, alpha))
-
-    if(tmp >= 0):
-        return sympy.nsolve(func_1,(0,1),solver='bisect', verify=False)
-    else:
-        return sympy.nsolve(func_2,(0,1),solver='bisect', verify=False)
-
-
-##------------------------------ wyj ADD above---------------------------------------------
-
 class SimulatedAnnealingBase(SkoBase):
     """
     DO SA(Simulated Annealing)
@@ -105,7 +75,6 @@ class SimulatedAnnealingBase(SkoBase):
             for i in range(self.L):
                 # wyj: self.get_new_x() IS calculable
                 x_new = self.get_new_x(x_current)
-                # TODO:!! modify 'func'
                 # 所以这里是代入x_new去求解func，还是要[用解方程把u解出来-->转化成np格式然后算p-->算loss] == func
                 # 只不过func必须定义在这里，这里是有3个params的值的，不然没办法解`u`
                 y_new = self.func(x_new)
