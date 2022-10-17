@@ -5,9 +5,15 @@
 # @File    : SA_PT.py.py
 # @Description : Modify code for inference purpose in PT model
 
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# @Time    : 2019/8/17
+# @Author  : github.com/guofei9987
+
 import numpy as np
-from sko.base import SkoBase
+from .base import SkoBase
 from sko.operators import mutation
+
 
 class SimulatedAnnealingBase(SkoBase):
     """
@@ -37,10 +43,12 @@ class SimulatedAnnealingBase(SkoBase):
     See https://github.com/guofei9987/scikit-opt/blob/master/examples/demo_sa.py
     """
 
-    def __init__(self, func, x0, T_max=100, T_min=1e-7, L=300, max_stay_counter=150, **kwargs):
+    def __init__(self, func, x0, settings, T_max=100, T_min=1e-7, L=300, max_stay_counter=150, **kwargs):
         assert T_max > T_min > 0, 'T_max > T_min > 0'
 
         self.func = func
+        # wyj: add settings for func
+        self.settings = settings
         self.T_max = T_max  # initial temperature
         self.T_min = T_min  # end temperature
         self.L = int(L)  # num of iteration under every temperature（also called Long of Chain）
@@ -50,7 +58,7 @@ class SimulatedAnnealingBase(SkoBase):
         self.n_dim = len(x0)
 
         self.best_x = np.array(x0)  # initial solution
-        self.best_y = self.func(self.best_x)
+        self.best_y = self.func(self.best_x,self.settings)
         self.T = self.T_max
         self.iter_cycle = 0
         self.generation_best_X, self.generation_best_Y = [self.best_x], [self.best_y]
@@ -69,20 +77,22 @@ class SimulatedAnnealingBase(SkoBase):
         return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
     def run(self):
+        # y_current记录了当前iteration中最好的结果，y_current <= self.best_y
         x_current, y_current = self.best_x, self.best_y
         stay_counter = 0
         while True:
+            print("-------------- {}_th iteration --------------\n".format(self.iter_cycle))
             for i in range(self.L):
-                # wyj: self.get_new_x() IS calculable
+                print("---------- {}/L ----------\n".format(i))
                 x_new = self.get_new_x(x_current)
-                # 所以这里是代入x_new去求解func，还是要[用解方程把u解出来-->转化成np格式然后算p-->算loss] == func
-                # 只不过func必须定义在这里，这里是有3个params的值的，不然没办法解`u`
-                y_new = self.func(x_new)
+                # print("x_new after clipping: ", x_new)
+                y_new = self.func(x_new,self.settings)
 
                 # Metropolis
                 df = y_new - y_current
-                # wyj: or 后面表示 “随机移动” 成立
-                if df < 0 or np.exp(-df / self.T) > np.random.rand():
+                print("y_new - y_current is {}: ".format(df))
+                # print("---------- {}/L ----------\n".format(i))
+                if ((df < 0.0) | (np.exp(-df / self.T) > np.random.rand())):
                     x_current, y_current = x_new, y_new
                     if y_new < self.best_y:
                         self.best_x, self.best_y = x_new, y_new
@@ -104,7 +114,6 @@ class SimulatedAnnealingBase(SkoBase):
             if stay_counter > self.max_stay_counter:
                 stop_code = 'Stay unchanged in the last {stay_counter} iterations'.format(stay_counter=stay_counter)
                 break
-
         return self.best_x, self.best_y
 
     fit = run
@@ -151,24 +160,19 @@ class SAFast(SimulatedAnnealingValue):
         self.c = self.m * np.exp(-self.n * self.quench)
 
     def get_new_x(self, x):
-        """
-
-        :param x: self.best_x for current and needed to be updated
-        :return: updated x
-        """
-        # wyj: self.n_dim = len(x0) = 3
+        # wyj: self.n_dim = len(x0)
         r = np.random.uniform(-1, 1, size=self.n_dim)
-        # TODO: Check if self.T is tractable
+        # wyj: np.sign(r)控制（正负）方向
         xc = np.sign(r) * self.T * ((1 + 1.0 / self.T) ** np.abs(r) - 1.0)
-        # wyj: self.hop=10
         x_new = x + xc * self.hop
-        # wyj: NO BOUNDS here
+        print("x_new before clipping: ", x_new)
         if self.has_bounds:
             return np.clip(x_new, self.lb, self.ub)
         return x_new
 
     def cool_down(self):
-        # wyj: self.quench=1
+        # wyj: self.quench=1， self.c = 1/e
+        # wyj: By default, self.T = self.T_max * e^(-1/e*self.iter_cycle)
         self.T = self.T_max * np.exp(-self.c * self.iter_cycle ** self.quench)
 
 
@@ -187,59 +191,66 @@ class SABoltzmann(SimulatedAnnealingValue):
 
     def get_new_x(self, x):
         a, b = np.sqrt(self.T), self.hop / 3.0 / self.learn_rate
+        # wyj: in our case, std = b = self.hop / 3.0 / self.learn_rate mostly
         std = np.where(a < b, a, b)
         xc = np.random.normal(0, 1.0, size=self.n_dim)
+        # wyj: in our case, std * self.learn_rate = self.hop / 3.0 / self.learn_rate * self.learn_rate = self.hop / 3.0 = 10/3
+        # wyj: self.learn_rate is USELESS!!  And x_new is far bigger than x_old
         x_new = x + xc * std * self.learn_rate
+        print("x_new before clipping: ",x_new)
         if self.has_bounds:
             return np.clip(x_new, self.lb, self.ub)
         return x_new
 
     def cool_down(self):
+        # wyj: T goes down slower than SACauchy due to np.log() here
         self.T = self.T_max / np.log(self.iter_cycle + 1.0)
 
 
-class SACauchy(SimulatedAnnealingValue):
-    """
-    u ~ Uniform(-pi/2, pi/2, size=d)
-    xc = learn_rate * T * tan(u)
-    x_new = x_old + xc
-
-    T_new = T0 / (1 + k)
-    """
-
-    def __init__(self, func, x0, T_max=100, T_min=1e-7, L=300, max_stay_counter=150, **kwargs):
-        super().__init__(func, x0, T_max, T_min, L, max_stay_counter, **kwargs)
-        self.learn_rate = kwargs.get('learn_rate', 0.5)
-
-    def get_new_x(self, x):
-        u = np.random.uniform(-np.pi / 2, np.pi / 2, size=self.n_dim)
-        xc = self.learn_rate * self.T * np.tan(u)
-        x_new = x + xc
-        if self.has_bounds:
-            return np.clip(x_new, self.lb, self.ub)
-        return x_new
-
-    def cool_down(self):
-        self.T = self.T_max / (1 + self.iter_cycle)
+# class SACauchy(SimulatedAnnealingValue):
+#     """
+#     u ~ Uniform(-pi/2, pi/2, size=d)
+#     xc = learn_rate * T * tan(u)
+#     x_new = x_old + xc
+#
+#     T_new = T0 / (1 + k)
+#     """
+#
+#     def __init__(self, func, x0, T_max=100, T_min=1e-7, L=300, max_stay_counter=150, **kwargs):
+#         super().__init__(func, x0, T_max, T_min, L, max_stay_counter, **kwargs)
+#         self.learn_rate = kwargs.get('learn_rate', 0.5)
+#
+#     def get_new_x(self, x):
+#         u = np.random.uniform(-np.pi / 2, np.pi / 2, size=self.n_dim)
+#         # wyj: In our case, self.T is super big.
+#         # and u is not friendly to alpha
+#         xc = self.learn_rate * self.T * np.tan(u)
+#         x_new = x + xc
+#         print("x_new before clipping: ", x_new)
+#         if self.has_bounds:
+#             return np.clip(x_new, self.lb, self.ub)
+#         return x_new
+#
+#     def cool_down(self):
+#         self.T = self.T_max / (1 + self.iter_cycle)
 
 
 # SA_fast is the default
 SA = SAFast
 
 
-class SA_TSP(SimulatedAnnealingBase):
-    def cool_down(self):
-        self.T = self.T_max / (1 + np.log(1 + self.iter_cycle))
-
-    def get_new_x(self, x):
-        x_new = x.copy()
-        new_x_strategy = np.random.randint(3)
-        if new_x_strategy == 0:
-            x_new = mutation.swap(x_new)
-        elif new_x_strategy == 1:
-            x_new = mutation.reverse(x_new)
-        elif new_x_strategy == 2:
-            x_new = mutation.transpose(x_new)
-
-        return x_new
-
+# class SA_TSP(SimulatedAnnealingBase):
+#     def cool_down(self):
+#         self.T = self.T_max / (1 + np.log(1 + self.iter_cycle))
+#
+#     def get_new_x(self, x):
+#         x_new = x.copy()
+#         new_x_strategy = np.random.randint(3)
+#         if new_x_strategy == 0:
+#             x_new = mutation.swap(x_new)
+#         elif new_x_strategy == 1:
+#             x_new = mutation.reverse(x_new)
+#         elif new_x_strategy == 2:
+#             x_new = mutation.transpose(x_new)
+#
+#         return x_new
