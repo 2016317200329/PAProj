@@ -11,7 +11,7 @@
 # @Author  : github.com/guofei9987
 
 import numpy as np
-from .base import SkoBase
+from sko.base import SkoBase
 from sko.operators import mutation
 
 
@@ -124,8 +124,8 @@ class SimulatedAnnealingValue(SimulatedAnnealingBase):
     SA on real value function
     """
 
-    def __init__(self, func, x0, T_max=100, T_min=1e-7, L=300, max_stay_counter=150, **kwargs):
-        super().__init__(func, x0, T_max, T_min, L, max_stay_counter, **kwargs)
+    def __init__(self, func, x0, settings,T_max=100, T_min=1e-7, L=300, max_stay_counter=150, **kwargs):
+        super().__init__(func, x0, settings,T_max, T_min, L, max_stay_counter, **kwargs)
         lb, ub = kwargs.get('lb', None), kwargs.get('ub', None)
 
         if lb is not None and ub is not None:
@@ -185,8 +185,8 @@ class SABoltzmann(SimulatedAnnealingValue):
     T_new = T0 / log(1 + k)
     """
 
-    def __init__(self, func, x0, T_max=100, T_min=1e-7, L=300, max_stay_counter=150, **kwargs):
-        super().__init__(func, x0, T_max, T_min, L, max_stay_counter, **kwargs)
+    def __init__(self, func, x0, settings, T_max=100, T_min=1e-7, L=300, max_stay_counter=150, **kwargs):
+        super().__init__(func, x0, settings,T_max, T_min, L, max_stay_counter, **kwargs)
         self.learn_rate = kwargs.get('learn_rate', 0.5)
 
     def get_new_x(self, x):
