@@ -3,7 +3,7 @@
 # @Time    : 2019/8/17
 # @Author  : github.com/guofei9987; Wang Yujia
 # @File    : SA_PT.py.py
-# @Description : Modify code for inference purpose in PT model
+# @Description : Modify code for inference purpose in PT model.只保留了Boltzmann，并且import了一下外部的loss_func，相当于把loss拿到这里来算
 
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-

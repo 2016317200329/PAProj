@@ -6,12 +6,14 @@
 # @Description : 多线程实验。因为ipynb以及self内部的func对多线程支持不好， 写到外面。【必须SA和SA之间是抢占的，不能在一个SA内部抢占，一个SA内部无法抢占】
 
 ###################### Global Set Up######################################
-import numpy as np
+#import numpy as np
+#import torch
+import cupy as np
 import pandas as pd
 import sympy
 import time
 import datetime
-from sko.tools import set_run_mode
+# from sko.tools import set_run_mode
 from tqdm.notebook import tqdm
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -85,4 +87,3 @@ if __name__ == '__main__':
     p1_value = p1.get()
 
     print(f'进程1返回值：{p1_value}')
-
