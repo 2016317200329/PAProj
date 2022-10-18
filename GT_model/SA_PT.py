@@ -12,6 +12,20 @@
 
 import numpy as np
 from sko.base import SkoBase
+import numpy as np
+from PT_demo_multiP_lossfunc import loss_func
+
+import pandas as pd
+import sympy
+import time
+import datetime
+from sko.tools import set_run_mode
+from tqdm.notebook import tqdm
+import seaborn as sns
+import matplotlib.pyplot as plt
+#from sko.SA import SABoltzmann
+import multiprocessing
+from multiprocessing.dummy import Pool
 
 
 class SimulatedAnnealingBase(SkoBase):
@@ -42,11 +56,12 @@ class SimulatedAnnealingBase(SkoBase):
     See https://github.com/guofei9987/scikit-opt/blob/master/examples/demo_sa.py
     """
 
-    def __init__(self, func, x0, settings, T_max=100, T_min=1e-7, L=300, max_stay_counter=150, **kwargs):
+    def __init__(self, x0, settings, T_max=100, T_min=1e-7, L=300, max_stay_counter=150, **kwargs):
         assert T_max > T_min > 0, 'T_max > T_min > 0'
 
-        self.func = func
-        # wyj: add settings for func
+        # self.func = func
+        # wyj: add settings for loss func
+        # settings is a list
         self.settings = settings
         self.T_max = T_max  # initial temperature
         self.T_min = T_min  # end temperature
@@ -57,7 +72,7 @@ class SimulatedAnnealingBase(SkoBase):
         self.n_dim = len(x0)
 
         self.best_x = np.array(x0)  # initial solution
-        self.best_y = self.func(self.best_x,self.settings)
+        self.best_y = loss_func(self.best_x,self.settings)
         self.T = self.T_max
         self.iter_cycle = 0
         self.generation_best_X, self.generation_best_Y = [self.best_x], [self.best_y]
@@ -85,7 +100,7 @@ class SimulatedAnnealingBase(SkoBase):
                 print("---------- {}/L ----------\n".format(i))
                 x_new = self.get_new_x(x_current)
                 # print("x_new after clipping: ", x_new)
-                y_new = self.func(x_new,self.settings)
+                y_new = loss_func(x_new,self.settings)
 
                 # Metropolis
                 df = y_new - y_current
@@ -123,8 +138,8 @@ class SimulatedAnnealingValue(SimulatedAnnealingBase):
     SA on real value function
     """
 
-    def __init__(self, func, x0, settings,T_max=100, T_min=1e-7, L=300, max_stay_counter=150, **kwargs):
-        super().__init__(func, x0, settings,T_max, T_min, L, max_stay_counter, **kwargs)
+    def __init__(self, x0, settings,T_max=100, T_min=1e-7, L=300, max_stay_counter=150, **kwargs):
+        super().__init__( x0, settings,T_max, T_min, L, max_stay_counter, **kwargs)
         lb, ub = kwargs.get('lb', None), kwargs.get('ub', None)
 
         if lb is not None and ub is not None:
@@ -150,8 +165,8 @@ class SABoltzmann(SimulatedAnnealingValue):
     T_new = T0 / log(1 + k)
     """
 
-    def __init__(self, func, x0, settings, T_max=100, T_min=1e-7, L=300, max_stay_counter=150, **kwargs):
-        super().__init__(func, x0, settings,T_max, T_min, L, max_stay_counter, **kwargs)
+    def __init__(self, x0, settings, T_max=100, T_min=1e-7, L=300, max_stay_counter=150, **kwargs):
+        super().__init__(x0, settings,T_max, T_min, L, max_stay_counter, **kwargs)
         self.learn_rate = kwargs.get('learn_rate', 0.5)
 
     def get_new_x(self, x):
@@ -172,4 +187,3 @@ class SABoltzmann(SimulatedAnnealingValue):
         self.T = self.T_max / np.log(self.iter_cycle + 1.0)
 
 
-SA = SABoltzmann
