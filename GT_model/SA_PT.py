@@ -12,7 +12,6 @@
 
 import numpy as np
 from sko.base import SkoBase
-from sko.operators import mutation
 
 
 class SimulatedAnnealingBase(SkoBase):
@@ -142,40 +141,6 @@ class SimulatedAnnealingValue(SimulatedAnnealingBase):
         self.hop = self.hop * np.ones(self.n_dim)
 
 
-class SAFast(SimulatedAnnealingValue):
-    """
-    u ~ Uniform(0, 1, size = d)
-    y = sgn(u - 0.5) * T * ((1 + 1/T)**abs(2*u - 1) - 1.0)
-
-    xc = y * (upper - lower)
-    x_new = x_old + xc
-
-    c = n * exp(-n * quench)
-    T_new = T0 * exp(-c * k**quench)
-    """
-
-    def __init__(self, func, x0, T_max=100, T_min=1e-7, L=300, max_stay_counter=150, **kwargs):
-        super().__init__(func, x0, T_max, T_min, L, max_stay_counter, **kwargs)
-        self.m, self.n, self.quench = kwargs.get('m', 1), kwargs.get('n', 1), kwargs.get('quench', 1)
-        self.c = self.m * np.exp(-self.n * self.quench)
-
-    def get_new_x(self, x):
-        # wyj: self.n_dim = len(x0)
-        r = np.random.uniform(-1, 1, size=self.n_dim)
-        # wyj: np.sign(r)控制（正负）方向
-        xc = np.sign(r) * self.T * ((1 + 1.0 / self.T) ** np.abs(r) - 1.0)
-        x_new = x + xc * self.hop
-        print("x_new before clipping: ", x_new)
-        if self.has_bounds:
-            return np.clip(x_new, self.lb, self.ub)
-        return x_new
-
-    def cool_down(self):
-        # wyj: self.quench=1， self.c = 1/e
-        # wyj: By default, self.T = self.T_max * e^(-1/e*self.iter_cycle)
-        self.T = self.T_max * np.exp(-self.c * self.iter_cycle ** self.quench)
-
-
 class SABoltzmann(SimulatedAnnealingValue):
     """
     std = minimum(sqrt(T) * ones(d), (upper - lower) / (3*learn_rate))
@@ -207,50 +172,4 @@ class SABoltzmann(SimulatedAnnealingValue):
         self.T = self.T_max / np.log(self.iter_cycle + 1.0)
 
 
-# class SACauchy(SimulatedAnnealingValue):
-#     """
-#     u ~ Uniform(-pi/2, pi/2, size=d)
-#     xc = learn_rate * T * tan(u)
-#     x_new = x_old + xc
-#
-#     T_new = T0 / (1 + k)
-#     """
-#
-#     def __init__(self, func, x0, T_max=100, T_min=1e-7, L=300, max_stay_counter=150, **kwargs):
-#         super().__init__(func, x0, T_max, T_min, L, max_stay_counter, **kwargs)
-#         self.learn_rate = kwargs.get('learn_rate', 0.5)
-#
-#     def get_new_x(self, x):
-#         u = np.random.uniform(-np.pi / 2, np.pi / 2, size=self.n_dim)
-#         # wyj: In our case, self.T is super big.
-#         # and u is not friendly to alpha
-#         xc = self.learn_rate * self.T * np.tan(u)
-#         x_new = x + xc
-#         print("x_new before clipping: ", x_new)
-#         if self.has_bounds:
-#             return np.clip(x_new, self.lb, self.ub)
-#         return x_new
-#
-#     def cool_down(self):
-#         self.T = self.T_max / (1 + self.iter_cycle)
-
-
-# SA_fast is the default
-SA = SAFast
-
-
-# class SA_TSP(SimulatedAnnealingBase):
-#     def cool_down(self):
-#         self.T = self.T_max / (1 + np.log(1 + self.iter_cycle))
-#
-#     def get_new_x(self, x):
-#         x_new = x.copy()
-#         new_x_strategy = np.random.randint(3)
-#         if new_x_strategy == 0:
-#             x_new = mutation.swap(x_new)
-#         elif new_x_strategy == 1:
-#             x_new = mutation.reverse(x_new)
-#         elif new_x_strategy == 2:
-#             x_new = mutation.transpose(x_new)
-#
-#         return x_new
+SA = SABoltzmann
