@@ -8,7 +8,7 @@
 ###################### Global Set Up######################################
 #import numpy as np
 #import torch
-import cupy as np
+#import cupy as np
 import pandas as pd
 import sympy
 import time
