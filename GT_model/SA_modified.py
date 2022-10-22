@@ -141,7 +141,10 @@ class SimulatedAnnealingValue(SimulatedAnnealingBase):
             self.hop = kwargs.get('hop', 10)
         else:
             raise ValueError('input parameter error: lb, ub both exist, or both not exist')
+        #print("before, hop:",self.hop)
+        # wyj: why have to '* np.ones(self.n_dim)' cause nothing changes here.
         self.hop = self.hop * np.ones(self.n_dim)
+        #print("after, hop:", self.hop)
 
 
 class SAFast(SimulatedAnnealingValue):
@@ -195,15 +198,15 @@ class SABoltzmann(SimulatedAnnealingValue):
     def get_new_x(self, x):
         a, b = np.sqrt(self.T), self.hop / 3.0 / self.learn_rate
         # wyj: in our case, std = b = self.hop / 3.0 / self.learn_rate mostly
+        # wyj: !Alert! When a is less than any figure in b, a becomes std and std is always in shape of b
         std = np.where(a < b, a, b)
-        # wyj: xc is a noise
-        # original:
+        # wyj: xc is a noise. original expression:
         # xc = np.random.normal(0, 1.0, size=self.n_dim)
-        # wyj altered:
-        xc = np.random.normal(0, 1.0, size=self.n_dim)
         # wyj: in our case, std * self.learn_rate = self.hop / 3.0 / self.learn_rate * self.learn_rate = (self.hop / 3.0)
-        # wyj: self.learn_rate is USELESS!!
-        x_new = x + xc*(self.hop / 3.0)
+        # wyj: self.learn_rate is USELESS!! x_new = x + xc*(self.hop / 3.0)
+        # wyj altered:
+        xc = np.random.normal([0.0, 0.0], [0.1, 3.0], size=(self.n_dim))
+        # xc = np.random.normal([0.0, 0.0,0.0], [0.1, 1.0, 3.0], size=(self.n_dim))
         x_new = x + xc * std * self.learn_rate
         # print("x_new before clipping: ",x_new)
         if self.has_bounds:
