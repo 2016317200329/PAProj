@@ -153,19 +153,78 @@ max    471.000000  1.001548e+07     24.000000    60.0  419.000000
 2. 生成多个组的data呢？依照*data_withnp_1_selectedkeys.csv*来定的。一个文件对应了一个setting，对应了*data_withnp_1_selectedkeys.csv*的一行
 
 ## info_asymm
-### *info_asymm/datawithnp_asc_symmetry.csv*
+### *datawithnp_asc_symmetry.csv*
 1. 产生于../data_handler/data_extract_for_asc_symmetry.ipynb
 2. 基于`calculate_n.py`,重新对数据进行整理。其实主要目的是把“price”和“fixed-price”什么的筛选出来
 3. 注意其实traces.tsv里并没有记录任何fixed-price auction
 4. unique_setting = ['product_id', 'bidincrement', 'bidfee','retail']，多了个'retail'
 5. 未经过threshold筛选
 
-### *info_asymm/datawithnp_asc_symmetry_selected.csv*
-1. 产生于../data_handler/data_extract_for_asc_symmetry.ipynb
-2. 经过threshold筛选
-3. 可以发现，当threshold=16时，`unique_setting`增加一项'retail'会让筛选后的data从4614行变成3838
+### *datawithnp_asc_symmetry_selected.csv*
+1. 同上，但是经过threshold筛选. 
+2. 可以发现，当threshold=16时，`unique_setting`增加一项'retail'会让筛选后的data从4614行变成3838
 
-# 规范命名[never use them]
+### *datawithnp_asc_symmetry_2.csv*
+1. 产生于../data_handler/data_extract_for_asc_symmetry_2.ipynb
+2. 用method-2算出来的，不需要traces.tsv
+3. 记录了fixed-price auction
+4. 未经过threshold筛选
+
+### *datawithnp_asc_symmetry_2_selected.csv*
+1. 同上，但是经过threshold筛选. 
+
+### *datawithnp_fixed_symmetry.csv*
+1. 产生于../data_handler/data_extract_for_fixed_symmetry.ipynb
+2. 使用方法一，对于fixed-price的计算
+
+### *datawithnp_fixed_symmetry.csv*
+1. 同上，但是经过threshold筛选. 
+
+## SA_PT
+### *data_key.csv*
+1. 来自SA_for_PT_model.ipynb和SA_for_PT_model_delta_eq1.ipynb，两个文件输出的是一样的
+2. 把PT模型中所有要估计SA参数的key：[product_id,bidincrement,bidfee,retail]的都输出出来
+### *params_opitim_delta.csv*
+1. 来自SA_for_PT_model_delta_eq1.ipynb，当delta=1时对于另外两个参数的infer，
+2. 中间文件罢了
+### *params_opitim_delta_wset.csv*
+1. 上表+data_key.csv组成的，来自SA_for_PT_model_delta_eq1.ipynb
+2. 当delta=1时，对于另外两个参数的infer
+
+## GT_model
+### *GT_asc_symmetry_gen.ipynb*
+1. 对应的是小数据的那篇paper，计算的是增加拍卖的情况
+### *GT_asc_symmetry_gen_demo.ipynb*
+1. 上述实验，在某个setting上进行的小demo
+
+### *GT_fixed_symmetry_gen.ipynb*
+1. 对应的是小数据的那篇paper，计算的是定价拍卖的情况
+### *GT_fixed_symmetry_gen_demo.ipynb*
+1. 上述实验，在某个setting上进行的小demo
+
+### *PT_demo.ipynb*
+1. 对应的是PT模型的那篇paper，在某个setting上进行的小demo
+2. 实际上是在通过SA做infer
+
+### *PT_demo_table1.ipynb*
+1. 对应的是PT模型的那篇paper
+2. 是在复现table 1的结果
+
+### *SA_for_PT_model.ipynb*
+1. 对应的是PT模型的那篇paper
+2. 在*PT_demo.ipynb*的基础上，通过SA求解所有setting的参数
+3. 但是慢，基本敲定用↓这个版本
+### *SA_for_PT_model_delta_eq1.ipynb*
+1. 对应的是PT模型的那篇paper
+2. 在*PT_demo.ipynb*的基础上，通过SA求解所有setting的参数
+3. 设置所有delta=1，只需要infer 2个参数，最终结果在*params_opitim_delta_wset.csv*
+4. 注意有的结果infer不出来 QAQ
+
+### *SA_modified.py*
+1. 改了下`sko.SA`。把不需要的部分注释掉
+3. 在加噪音的时候，对于两个参数加了不同的噪音。（原code加的是一个噪音）
+
+# 规范命名 [never use them]
 
 1. 类名： 单词首字母大写,单词无分隔
    参考：`class Logrecord(object):`
