@@ -83,14 +83,12 @@ class SimulatedAnnealingBase(SkoBase):
             for i in range(self.L):
                 # print("---------- {}/L ----------\n".format(i))
                 x_new = self.get_new_x(x_current)
-                # print("x_new after clipping: ", x_new)
                 # wyj: add 'self.other_params' to pass necessary parameters
                 y_new = self.func(x_new,self.other_params)
 
                 # Metropolis
                 df = y_new - y_current
-                # print("y_new - y_current is {}: ".format(df))
-                # print("---------- {}/L ----------\n".format(i))
+                #print(f"df: {df}, self.T: {self.T}")
                 if ((df < 0.0) | (np.exp(-df / self.T) > np.random.rand())):
                     x_current, y_current = x_new, y_new
                     if y_new < self.best_y:
