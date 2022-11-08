@@ -191,38 +191,52 @@ max    471.000000  1.001548e+07     24.000000    60.0  419.000000
 1. 上表+data_key.csv组成的，来自SA_for_PT_model_delta_eq1.ipynb
 2. 当delta=1时，对于另外两个参数的infer
 
-## GT_model
-### *GT_asc_symmetry_gen.ipynb*
+## pt/results
+### *PT_all1288_P.csv*
+1. 来自`PT_gen.ipynb`保存了1288个auction setting的P结果
+
+# GT_model
+## *GT_asc_symmetry_gen.ipynb*
 1. 对应的是小数据的那篇paper，计算的是增加拍卖的情况
-### *GT_asc_symmetry_gen_demo.ipynb*
+## *GT_asc_symmetry_gen_demo.ipynb*
 1. 上述实验，在某个setting上进行的小demo
 
-### *GT_fixed_symmetry_gen.ipynb*
+## *GT_fixed_symmetry_gen.ipynb*
 1. 对应的是小数据的那篇paper，计算的是定价拍卖的情况
-### *GT_fixed_symmetry_gen_demo.ipynb*
+## *GT_fixed_symmetry_gen_demo.ipynb*
 1. 上述实验，在某个setting上进行的小demo
 
-### *PT_demo.ipynb*
+## *PT_demo.ipynb*
 1. 对应的是PT模型的那篇paper，在某个setting上进行的小demo
 2. 实际上是在通过SA做infer
-
-### *PT_demo_table1.ipynb*
+## *PT_demo_table1.ipynb*
 1. 对应的是PT模型的那篇paper
 2. 是在复现table 1的结果
 
-### *SA_for_PT_model.ipynb*
+## *SA_for_PT_model.ipynb*
 1. 对应的是PT模型的那篇paper
 2. 在*PT_demo.ipynb*的基础上，通过SA求解所有setting的参数
 3. 但是慢，基本敲定用↓这个版本
-### *SA_for_PT_model_delta_eq1.ipynb*
+## *SA_for_PT_model_delta_eq1.ipynb*
 1. 对应的是PT模型的那篇paper
 2. 在*PT_demo.ipynb*的基础上，通过SA求解所有setting的参数
-3. 设置所有delta=1，只需要infer 2个参数，最终结果在*params_opitim_delta_wset.csv*
+3. 设置所有`delta=1`，只需要infer 2个参数，最终结果在*params_opitim_delta_wset.csv*
 4. 注意有的结果infer不出来 QAQ
 
-### *SA_modified.py*
+## *SA_for_PT_model_unsolved.ipynb*
+1. 探究了一下30个infer不出来的setting是为什么
+2. 探究完毕后infer出来了15个，剩30个无能为力
+## *SA_for_PT_model_select_initialAlpha.ipynb*
+1. 对15个infer不出来的settings，进行了(-0.3,0.3)上粒度为0.01的，600次对alpha值的查找，
+2. But fail
+
+## *SA_modified.py*
 1. 改了下`sko.SA`。把不需要的部分注释掉
 3. 在加噪音的时候，对于两个参数加了不同的噪音。（原code加的是一个噪音）
+
+## *PT_gen.ipynb*
+1. 用infer好的参数，求P并且保存P到`data/pt/results/PT_all1288_P.csv`
+2. 一共1288个auction settings，把这些settings（P的keys）保存在`../data/SA_PT/data_key_15.csv`
 
 # 规范命名 [never use them]
 
