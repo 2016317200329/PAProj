@@ -88,7 +88,7 @@ class SimulatedAnnealingBase(SkoBase):
 
                 # Metropolis
                 df = y_new - y_current
-                #print(f"df: {df}, self.T: {self.T}")
+                print(f"df: {df}, y_new: {y_new}")
                 if ((df < 0.0) | (np.exp(-df / self.T) > np.random.rand())):
                     x_current, y_current = x_new, y_new
                     if y_new < self.best_y:
@@ -203,7 +203,8 @@ class SABoltzmann(SimulatedAnnealingValue):
         # wyj: in our case, std * self.learn_rate = self.hop / 3.0 / self.learn_rate * self.learn_rate = (self.hop / 3.0)
         # wyj: self.learn_rate is USELESS!! x_new = x + xc*(self.hop / 3.0)
         # wyj altered:
-        xc = np.random.normal([0.0, 0.0], [0.1, 3.0], size=(self.n_dim))
+        # wyj: 从0.1改到0.2
+        xc = np.random.normal([0.0, 0.0], [0.2, 3.0], size=(self.n_dim))
         # xc = np.random.normal([0.0, 0.0,0.0], [0.1, 1.0, 3.0], size=(self.n_dim))
         x_new = x + xc * std * self.learn_rate
         # print("x_new before clipping: ",x_new)
