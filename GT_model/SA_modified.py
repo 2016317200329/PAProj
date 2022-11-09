@@ -88,7 +88,7 @@ class SimulatedAnnealingBase(SkoBase):
 
                 # Metropolis
                 df = y_new - y_current
-                print(f"df: {df}, y_new: {y_new}")
+                # print(f"df: {df}, y_new: {y_new}")
                 if ((df < 0.0) | (np.exp(-df / self.T) > np.random.rand())):
                     x_current, y_current = x_new, y_new
                     if y_new < self.best_y:
