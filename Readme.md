@@ -182,8 +182,17 @@ max    471.000000  1.001548e+07     24.000000    60.0  419.000000
 
 ## SA_PT
 ### *data_key.csv*
+0. 不咋用这个了
 1. 来自SA_for_PT_model.ipynb和SA_for_PT_model_delta_eq1.ipynb，两个文件输出的是一样的
 2. 把PT模型中所有要估计SA参数的key：[product_id,bidincrement,bidfee,retail]的都输出出来
+### *data_key_PT.csv*
+1. 来自SA_for_PT_model_delta_eq1.ipynb
+2. “_PT“表示是对应的是PT模型
+### *data_key_PT_vbd.csv*
+1. 来自PT_gen_oneforall.ipynb
+2. "oneforall"表示是common params得出的结果
+3. **实际上和common params与uniq params，他们的“data_key”是相同的**
+
 ### *params_opitim_delta.csv*
 1. 来自SA_for_PT_model_delta_eq1.ipynb，当delta=1时对于另外两个参数的infer，
 2. 中间文件罢了
@@ -191,9 +200,26 @@ max    471.000000  1.001548e+07     24.000000    60.0  419.000000
 1. 上表+data_key.csv组成的，来自SA_for_PT_model_delta_eq1.ipynb
 2. 当delta=1时，对于另外两个参数的infer
 
-## pt/results
-### *PT_all1288_P.csv*
+### *params_opitim_delta_T.csv*
+1. drop掉duration>T的samples
+### *params_opitim_delta_T_wset.csv*
+1. 同上
+
+### *params_opitim_oneforall.csv*
+1. 来自SA_for_PT_one_for_all.ipynb
+2. 对所有settings infer出来的common params
+
+### results
+#### *PT_all1288_P.csv*
 1. 来自`PT_gen.ipynb`保存了1288个auction setting的P结果
+
+#### *PT_all1303_oneforall_P.csv*
+1. “oneforall”表示infer一个common params，用这个params算P
+2. “1303”表示只筛下去了duration < T的samples，剩下1303个settings
+
+#### *PT_all1303_P.csv*
+1. 对所有settings分别infer一组参数
+2. “1303”表示只筛下去了duration < T的samples，剩下1303个settings
 
 # GT_model
 ## *GT_asc_symmetry_gen.ipynb*
@@ -213,6 +239,10 @@ max    471.000000  1.001548e+07     24.000000    60.0  419.000000
 1. 对应的是PT模型的那篇paper
 2. 是在复现table 1的结果
 
+## *PT_gen_oneforall.ipynb*
+1. 用所有settings infer得到的common params，去生成
+2. 
+
 ## *SA_for_PT_model.ipynb*
 1. 对应的是PT模型的那篇paper
 2. 在*PT_demo.ipynb*的基础上，通过SA求解所有setting的参数
@@ -229,6 +259,9 @@ max    471.000000  1.001548e+07     24.000000    60.0  419.000000
 ## *SA_for_PT_model_select_initialAlpha.ipynb*
 1. 对15个infer不出来的settings，进行了(-0.3,0.3)上粒度为0.01的，600次对alpha值的查找，
 2. But fail
+
+## *SA_for_PT_one_for_all.ipynb*
+1. 为所有settings，infer出 common params
 
 ## *SA_modified.py*
 1. 改了下`sko.SA`。把不需要的部分注释掉
