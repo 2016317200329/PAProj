@@ -8,14 +8,6 @@
 import os
 import pandas as pd
 import torch
-import torch.utils.data
-from torch.utils.data import Dataset
-from torch.utils.data import DataLoader
-import torch.nn as nn
-import torch.nn.functional as F
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 # print输出在:
 txt = "../BasicInfo_outcomes.txt"
