@@ -4,14 +4,14 @@
 # @Author  : Wang Yujia
 # @File    : mlp.py
 # @Description : 搭一个基本的mlp，用于测试思路
-# @TODO: 画图细化一下training的流程：怎么用target data/ NN的规模/ batch size等
+# @TODO: 细化一下training的流程：NN的规模/ batch size等
 
 from BasicInfo.common_settings import *
-from torchsummary import summary
+# from torchsummary import summary
 import mydataset
 import torch.utils.data
 # from torch.utils.tensorboard import SummaryWriter
-from tensorboardX import SummaryWriter
+# from tensorboardX import SummaryWriter
 
 ################# Global Params ###########################
 N_gaussians = 3
@@ -32,7 +32,7 @@ data_file_head = "../data/sim_data/data_sampled_"
 data_file_tail = ".csv"
 ################# Global Params ###########################
 
-writer = SummaryWriter("logs-MLP")
+# writer = SummaryWriter("logs-MLP")
 
 # 1. Data读取与划分：70%为训练集,20%为验证集，10%为测试集
 # 1.1 读取并划分数据集，保存大小. *目前是读取sample data

@@ -74,14 +74,16 @@ features = ['product_id','bidincrement','bidfee','retail']
 
 # 方案2：写一个类，同时读取并返回Train和Target data
 class myDataset(Dataset):
-    def __init__(self, train_data_dir, target_data_path,data_key_path):
+    def __init__(self, path_all):
         """
-        读取data_dir路径下所有训练data files的path
+        读取data path
 
         """
-        self.train_data_dir = train_data_dir
-        self.target_data_path = target_data_path
-        self.data_key_path = data_key_path
+        self.GT_1_data_path = path_all[0]
+        self.GT_2_data_path = path_all[1]
+        self.target_data_path_head = path_all[2]
+        self.data_key_path = path_all[3]
+        self.target_features = ['N','P','cnt_n_2']
 
     def __len__(self):
         """
@@ -91,52 +93,52 @@ class myDataset(Dataset):
         data_key = pd.read_csv(self.data_key_path)
         return data_key.shape[0]
 
-    def transform(self,str_p):
-        """
-        transform str 'P' into array 'P'
-        :return:
-        """
-        a = np.array(np.mat(str_p))
-        a_vec = a.flatten()
-        return a_vec
-
     def __getitem__(self, index):
         """
         返回第index个 key，training data，target data
         :param index: 文件序
         :return: train_data, target_data_withkey
         """
-        # 还是要把这个4个files 读进内存里
-        train_data_all_1 = pd.read_csv(self.train_data_dir[0])
-        train_data_all_2 = pd.read_csv(self.train_data_dir[1])
-        target_data_all = pd.read_csv(self.target_data_path)
+        # 把这4个files 读进内存里
+        # read in
+        train_data_all_1 = pd.read_csv(self.GT_1_data_path)
+        train_data_all_2 = pd.read_csv(self.GT_2_data_path)
         data_key_all = pd.read_csv(self.data_key_path)
+        target_data_i = pd.read_csv(self.target_data_path_head + str(index) + ".csv",encoding="utf-8")
 
         # get the key from the 'index'
-        data_key = data_key_all[index,:]
+        data_key_i = data_key_all.iloc[index,:]
+        data_key_i = data_key_i.copy()
 
-        # select target data with the key
-        train_data_i_1_df = train_data_all_1[(train_data_all_1['bidincrement'] == data_key[1]) &
-                                           (train_data_all_1['bidfee'] == data_key[2]) &
-                                           (train_data_all_1['retail'] == data_key[2])].copy()
+        # select data with the key or the feature
+        train_data_i_1_df = train_data_all_1[(train_data_all_1['bidincrement'] == data_key_i[1]) &
+                                            (train_data_all_1['bidfee'] == data_key_i[2]) &
+                                            (train_data_all_1['retail'] == data_key_i[3])].copy()
 
-        train_data_i_2_df = train_data_all_2[(train_data_all_2['bidincrement'] == data_key[1]) &
-                                           (train_data_all_2['bidfee'] == data_key[2]) &
-                                           (train_data_all_2['retail'] == data_key[3])].copy()
+        train_data_i_2_df = train_data_all_2[(train_data_all_2['bidincrement'] == data_key_i[1]) &
+                                            (train_data_all_2['bidfee'] == data_key_i[2]) &
+                                            (train_data_all_2['retail'] == data_key_i[3])].copy()
+        target_data_i_df = target_data_i[self.target_features].copy()
 
-        target_data_i_df = target_data_all[(target_data_all['product_id'] == data_key[0]) &
-                                           (target_data_all['bidincrement'] == data_key[1]) &
-                                           (target_data_all['bidfee'] == data_key[2]) &
-                                           (target_data_all['retail'] == data_key[3])].copy()
+        # transform P&N into tensor
+        p_1 = torch.from_numpy( np.array(train_data_i_1_df.iloc[:,len(data_key_i)-1:]) )
+        p_2 = torch.from_numpy( np.array(train_data_i_2_df.iloc[:,len(data_key_i)-1:]) )
+        target_data = torch.from_numpy(np.array(target_data_i_df))
+        # data_key = torch.tensor(data_key_i)
 
-        # transform P into array vector
-        p_1_i = self.transform(train_data_i_1_df.loc[:, 'P'])
-        p_2_i = self.transform(train_data_i_2_df.loc[:, 'P'])
+        # train_data = torch.cat([p_1,p_2])
+        return p_1, p_2, target_data, data_key
 
-        #
-        # # 当loss为MLE的时候，只需要提取target的'P'列就好
-        # target_data_withkey = target_data_withkey.iloc[:,(target_data_withkey.shape[1]-1)]
-        # train_data = torch.tensor(np.array(train_data_df))
-        # target_data_withkey = torch.tensor(np.array(target_data_withkey))
+# input data
+GT_1_data_path = "../data/info_asymm/results/asc_symmetry/GT_asc_symmetry_P2_K=300.csv"
+GT_2_data_path = "../data/SA_PT/results/PT_oneforall_P_K=300.csv"
 
-        return data_key, (p_1_i, p_2_i),
+# target data
+target_output_head = "../data/targets/target_data_NP_"
+# data keys (for target)
+data_key_path = "../data/targets/target_datakey.csv"
+
+if __name__ == '__main__':
+    test_dta = myDataset([GT_1_data_path,GT_2_data_path, target_output_head, data_key_path])
+    p_1, p_2, target_data, data_key =  test_dta.__getitem__(0)
+
