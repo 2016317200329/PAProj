@@ -3,7 +3,7 @@
 # @Time    : 2022/3/14 17:02
 # @Author  : Wang Yujia
 # @File    : BasicInfo_outcomes.py
-# @Description : 关于outcomes数据集的一些信息,参考test1.py test2_traces20.py test3.py
+# @Description : [221221: 废弃]关于outcomes数据集的一些信息,参考test1.py test2_traces20.py test3.py
 # TODO：
 
 from common_settings import *
