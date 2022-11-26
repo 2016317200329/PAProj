@@ -143,3 +143,6 @@ dmypy.json
 cython_debug/
 
 !/logs/
+!/data_handler/datasets/
+!/data_handler/datasets/AllNLI.tsv.gz
+!/data_handler/datasets/stsbenchmark.tsv.gz
