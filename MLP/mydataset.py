@@ -10,6 +10,10 @@ from torch.utils.data import Dataset
 import torch
 import os
 import pandas as pd
+import numpy as np
+from torch.utils.data import DataLoader, SubsetRandomSampler
+
+train_pct = 0.7
 
 class myDataset(Dataset):
     def __init__(self, train_path, target_path, key_path):
@@ -26,8 +30,6 @@ class myDataset(Dataset):
         self.target_all_path = os.listdir(target_path)
         self.key_path = key_path
 
-        self.target_features = ['N','P','cnt_n_2']
-
     def __len__(self):
         """
         返回dataset的规模/ 有多少个settings可以用来学习
@@ -41,6 +43,7 @@ class myDataset(Dataset):
         :param index: 文件序
         :return: train_data, target_data_withkey
         """
+        # print(f"idx is {index}")
         train_path_i_path = os.path.join(self.train_root_path,self.train_all_path[index])
         target_path_i_path = os.path.join(self.target_root_path,self.target_all_path[index])
         train_df = pd.read_csv(train_path_i_path,encoding="utf-8")
@@ -62,5 +65,13 @@ data_key_path = r"../data/target_datakey.csv"
 
 if __name__ == '__main__':
     dataset = myDataset(train_path, target_path, data_key_path)
+    print(type(dataset))  # <class '__main__.myDataset'>
     # train_data, target_data = dataset.__getitem__(0)
     # print(train_data.shape,target_data.shape)
+    # shuffled_indices = np.random.permutation(dataset.__len__())
+    # train_idx = shuffled_indices[:int(train_pct * dataset.__len__())]
+
+    # train_loader = DataLoader(dataset=dataset, batch_size=16, shuffle=False, num_workers=0, drop_last=False,
+    #                         sampler=SubsetRandomSampler(train_idx))
+    # for data in train_loader:
+    #     print(data)
