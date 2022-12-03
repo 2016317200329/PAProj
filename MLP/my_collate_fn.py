@@ -25,7 +25,7 @@ def my_collate_fn(data):
     while data[batch][1].shape[0] < max_len:
         tmp = np.array([[0,0]]* (max_len - data[batch][1].shape[0]))
         data_list.append(data[batch][0])                # 原样保存training data
-        print(f"compare {data[batch][1].shape} with {tmp.shape}")
+        # print(f"compare {data[batch][1].shape} with {tmp.shape}")
         target_list.append(np.concatenate([data[batch][1], tmp], axis=0 ))
         batch += 1
 

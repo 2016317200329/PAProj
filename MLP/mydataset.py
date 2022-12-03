@@ -13,8 +13,6 @@ import pandas as pd
 import numpy as np
 from torch.utils.data import DataLoader, SubsetRandomSampler
 
-train_pct = 0.7
-
 class myDataset(Dataset):
     def __init__(self, train_path, target_path, key_path):
         """
@@ -49,29 +47,34 @@ class myDataset(Dataset):
         train_df = pd.read_csv(train_path_i_path,encoding="utf-8")
         target_df = pd.read_csv(target_path_i_path,encoding="utf-8")
 
-        # transform into tensor
-        train_data = torch.tensor(train_df.values)
-        target_data = torch.tensor(target_df.values)
+        # transform into numpy (not tensor!)
+        train_data = np.array(train_df.values)
+        target_data = np.array(target_df.values)
+
+        # print(train_data.shape)
+        # print(target_data.shape)
 
         return train_data, target_data
 
-# training data
-train_path = r"../data/train"
 
-# target data
-target_path = r"../data/targets"
-# data keys (for target)
-data_key_path = r"../data/target_datakey.csv"
 
-if __name__ == '__main__':
-    dataset = myDataset(train_path, target_path, data_key_path)
-    print(type(dataset))  # <class '__main__.myDataset'>
-    # train_data, target_data = dataset.__getitem__(0)
-    # print(train_data.shape,target_data.shape)
-    # shuffled_indices = np.random.permutation(dataset.__len__())
-    # train_idx = shuffled_indices[:int(train_pct * dataset.__len__())]
+######################### TEST USE ########################
 
-    # train_loader = DataLoader(dataset=dataset, batch_size=16, shuffle=False, num_workers=0, drop_last=False,
-    #                         sampler=SubsetRandomSampler(train_idx))
-    # for data in train_loader:
-    #     print(data)
+# train_pct = 0.7
+# # training data
+# train_path = r"../data/train"
+#
+# # target data
+# target_path = r"../data/targets"
+# # data keys (for target)
+# data_key_path = r"../data/target_datakey.csv"
+#
+# if __name__ == '__main__':
+#     dataset = myDataset(train_path, target_path, data_key_path)
+#     # print(type(dataset))  # <class '__main__.myDataset'>
+#     # train_data, target_data = dataset.__getitem__(0)
+#     # print(train_data.shape,target_data.shape)
+#
+#
+#     # for data in train_loader:
+#     #     print(data)
