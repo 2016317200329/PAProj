@@ -28,7 +28,7 @@ def my_collate_fn(data):
 
     data_list.append(data[-1][0])
     target_list.append(data[-1][1])
-    data_tensor = torch.from_numpy(np.stack(data_list))
-    target_tensor = torch.from_numpy(np.stack(target_list))
+    data_tensor = torch.from_numpy(np.stack(data_list)).float()
+    target_tensor = torch.from_numpy(np.stack(target_list)).float()
 
     return (data_tensor, target_tensor)
