@@ -21,13 +21,19 @@ def my_collate_fn(data):
     target_list = []
 
     # # padding with 0
-    for batch in range(0, len(data)-1):
+    batch = 0
+    while data[batch][1].shape[0] < max_len:
         tmp = np.array([[0,0]]* (max_len - data[batch][1].shape[0]))
         data_list.append(data[batch][0])                # 原样保存training data
+        print(f"compare {data[batch][1].shape} with {tmp.shape}")
         target_list.append(np.concatenate([data[batch][1], tmp], axis=0 ))
+        batch += 1
 
-    data_list.append(data[-1][0])
-    target_list.append(data[-1][1])
+    while batch < len(data):
+        data_list.append(data[-1][0])
+        target_list.append(data[-1][1])
+        batch += 1
+
     data_tensor = torch.from_numpy(np.stack(data_list)).float()
     target_tensor = torch.from_numpy(np.stack(target_list)).float()
 
