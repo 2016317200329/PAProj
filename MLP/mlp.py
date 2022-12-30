@@ -89,7 +89,6 @@ class Mlp(nn.Module):
         return pi, mu, sigma
 
 # 3.损失函数: 最大似然!
-# 计算loss的时候，需要用NN【额外】做一下infer，然后和target比较
 def loss_fn(pi, mu, sigma, y):
     y = torch.squeeze(y)
     print("y shape: ",y.shape)
