@@ -39,9 +39,9 @@ class myDataset(Dataset):
         """
         返回第index个 training data，target data
         :param index: 文件序
-        :return: train_data, target_data_withkey
+        :return: train_data, target_data
         """
-        # print(f"idx is {index}")
+        # print(f"target file is {self.target_all_path[index]}")
         train_path_i_path = os.path.join(self.train_root_path,self.train_all_path[index])
         target_path_i_path = os.path.join(self.target_root_path,self.target_all_path[index])
         train_df = pd.read_csv(train_path_i_path,encoding="utf-8")
@@ -50,9 +50,6 @@ class myDataset(Dataset):
         # transform into numpy (not tensor!)
         train_data = np.array(train_df.values)
         target_data = np.array(target_df.values)
-
-        # print(train_data.shape)
-        # print(target_data.shape)
 
         return train_data, target_data
 
