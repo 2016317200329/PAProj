@@ -1,5 +1,6 @@
 # ignore all data files
 data/
+MLP/logs-MLP/
 
 ### Python template
 # Byte-compiled / optimized / DLL files
@@ -146,3 +147,5 @@ cython_debug/
 !/data_handler/datasets/
 !/data_handler/datasets/AllNLI.tsv.gz
 !/data_handler/datasets/stsbenchmark.tsv.gz
+!/MLP/logs-MLP/events.out.tfevents.1662361013.LAPTOP-D5FKO4T5
+!/MLP/logs-MLP/
