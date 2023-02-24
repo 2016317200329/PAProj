@@ -1,4 +1,5 @@
 class DefaultConfig(object):
+    GT_CHOSEN = 0
 
     N_gaussians = 3  # nums of Gaussian kernels
 
@@ -13,8 +14,8 @@ class DefaultConfig(object):
     lr_for_mu = 5e-1  # 给mu单独设置learning rate
 
     ####### 一般是5e-1，如果容易出现NaN，改成1e-2
-    # learning_rate = 1e-2
-    # lr_for_mu = 1e-2   # 给mu单独设置learning rate
+    # learning_rate = 1e-4
+    # lr_for_mu = 1e-5   # 给mu单独设置learning rate
 
     #### For W loss
     # learning_rate = 1e-3
@@ -47,9 +48,9 @@ class DefaultConfig(object):
 
     # NLL metric
 
-    NLL_metric_path = "../data/NLL_metric_GT_Tgt=1_e4.csv"
+    # NLL_metric_path = "../data/NLL_metric_GT_Tgt=1_e4.csv"
     # NLL_metric_path = "../data/NLL_metric_GT_Tgt=1_e6.csv"
-    # NLL_metric_path = "../data/NLL_metric_GT_Tgt=1_e8.csv"
+    NLL_metric_path = "../data/NLL_metric_GT_Tgt=1_e8.csv"
     # NLL_metric_path = "../data/NLL_metric_GT_Tgt=1_e10.csv"
     # NLL_metric_path  ="../data/NLL_metric_GT_Tgt=1_e20.csv"
 
