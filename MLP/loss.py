@@ -61,7 +61,7 @@ def cal_metric(Pi, Mu, Sigma, Duration, N_gaussians, vali_setting,MIN_LOSS,devic
         # loss_4 = torch.log(loss_3)
         # # loss_sum = -torch.mean(loss_4) + loss_sum
         # loss_sum = -torch.sum(loss_4) + loss_sum
-
+        assert torch.all(loss_2)>=0,"in metric, loss_2<0"
         ## 方法二：在prob of each sample后加一个safety数 MIN_LOSS
         # loss_2 shape: torch.Size([40, 1])
         loss_3 = -torch.log(loss_2+MIN_LOSS)
@@ -110,6 +110,8 @@ def loss_fn_v2(Pi, Mu, Sigma, Duration, N_gaussians,TARGET, eps, device):
 
         # loss_2 是MDN的概率密度value
         loss_2 = torch.sum(loss_1 * pi, dim=1)
+
+        assert torch.all(loss_2) >= 0, "in loss, loss_2<0"
 
         ## 两种截断的方式都ok：
         ## 方法一：在MDN的prob上设定最小值；

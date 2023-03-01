@@ -10,52 +10,71 @@ class DefaultConfig(object):
     test_pct = 0.1
 
     # train and optim.
-    learning_rate = 5e-1
-    lr_for_mu = 5e-1  # 给mu单独设置learning rate
+    # learning_rate = 5e-1
+    # lr_for_mu = 5e-1  # 给mu单独设置learning rate
 
     ####### 一般是5e-1，如果容易出现NaN，改成1e-2
-    # learning_rate = 1e-4
-    # lr_for_mu = 1e-5   # 给mu单独设置learning rate
+    learning_rate = 1e-2
+    lr_for_pi = 1e-2   # 给pi单独设置learning rate
+    lr_for_mu = 1e-1   # 给mu单独设置learning rate
+    lr_for_sigma = 1e-2
+
+    ############## tensorboard
+    logs_str = f"kernel=10_stride=5"
+    tag_str = f""
 
     #### For W loss
     # learning_rate = 1e-3
-    # lr_for_mu = 1e-3   # 给mu单独设置learning rate
+    # lr_for_mu = 1e-2   # 给mu单独设置learning rate
+    # lr_for_sigma = 1e-4
 
-    MIN_LOSS = 1e-4
-    SAFETY = 1e-20
+    lr_decay = 0.95      # when val_loss increase, lr = lr*lr_decay
+    weight_decay = 1e-3  # for optimizer (regularization)
 
-    # Training data的粒度，画图会使用到
+    SAFETY = 1e-30
+
+    # Training data的粒度，画mdn时会使用到，
     SCALE = 1
-    # Target data是target_5时
-    TARGET = 1
 
-    lr_decay = 0.95  # when val_loss increase, lr = lr*lr_decay
-    weight_decay = 1e-4  # 损失函数
+    ################### DATA PATH ######################
 
 
-    ###################DATA PATH######################
     # Training data
     # train_path = r"../data/train_100"
     # train_path = r"../data/train_60"
     train_path = r"../data/train_300_v1"
 
-    # Target data
-    target_path = r"../data/targets"
-    # target_path = r"../data/targets_5"
+    # Target data for metric calculation
+    target_path_metric = r"../data/targets"
+
+    # Target data for loss calculation
+    TARGET = 5
+    arr_flag = False        # whether drop uniform data
+    # target_path_loss = r"../data/targets_5_DA_P=0.5_N_c=3"
+    # arr_path = r"../data/arr_selected/arr_targets_5_DA_P=0.5_N_c=3_K=3.npy"
+
+    # arr_path = r"../data/arr_selected/arr_targets_5_DA_P=0.5_N_c=3_K=2.npy"
+
+    # target_path_loss = r"../data/targets_5_DA_P=1_N_c=3"
+    # target_path_loss = r"../data/targets_5_DA_P=0.5_N_c=2"
+    target_path_loss = r"../data/targets_5"
     # target_path = r"../data/targets_5_cdf"
+
     # data keys
     data_key_path = "../data/target_datakey.csv"
 
     # NLL metric
-
-    # NLL_metric_path = "../data/NLL_metric_GT_Tgt=1_e4.csv"
-    # NLL_metric_path = "../data/NLL_metric_GT_Tgt=1_e6.csv"
-    NLL_metric_path = "../data/NLL_metric_GT_Tgt=1_e8.csv"
-    # NLL_metric_path = "../data/NLL_metric_GT_Tgt=1_e10.csv"
-    # NLL_metric_path  ="../data/NLL_metric_GT_Tgt=1_e20.csv"
+    MIN_LOSS = 1e-30
+    NLL_metric_path = "../data/GT_metric/NLL_metric_GT_Tgt=1_e30.csv"
+    # NLL_metric_path = "../data/GT_metric/NLL_metric_GT_Tgt=1_e40.csv"
+    # NLL_metric_path = "../data/GT_metric/NLL_metric_GT_Tgt=1_e50.csv"
 
     # Net path
     net_root_path = "../net_saved/"
+
+    # For scheduler
+    StepLR_step_size = 20
+    StepLR_gamma = 0.8
 
 class bcolors:
     HEADER = '\033[95m'
