@@ -318,7 +318,7 @@ factor = 1  # prob的放大系数
 OTLoss = geomloss.SamplesLoss(
     loss='sinkhorn', p=p)    # blur=entreg**(1/p) backend='tensorized',
 
-def loss_fn_WD(Pi, Mu, Sigma, Target, N_gaussians,device):
+def loss_fn_WD(Pi, Mu, Sigma, Target, N_gaussians,TARGET,device):
     """
     计算Wasserstein loss(Sinkhorn)
     Parameters
