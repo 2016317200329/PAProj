@@ -363,26 +363,25 @@ def validate(mlp,val_loader,N_gaussians, MIN_LOSS, device):
     total_vali_metric = 0   # vali metric
     cnt = 0                 # vali set size
     GT_metric = torch.tensor([0.,0.]).reshape(1,2)
-    with torch.no_grad():
-        for vali_batch_id, vali_data in enumerate(val_loader):
+    for vali_batch_id, vali_data in enumerate(val_loader):
 
-            vali_input_data, vali_target, _, vali_setting , vali_metric = vali_data
-            vali_input_data = vali_input_data.to(device)
-            vali_target = vali_target.to(device)
-            cnt = cnt + len(vali_input_data)
-            vali_pi, vali_mu, vali_sigma = mlp(vali_input_data)
+        vali_input_data, vali_target, _, vali_setting , vali_metric = vali_data
+        vali_input_data = vali_input_data.to(device)
+        vali_target = vali_target.to(device)
+        cnt = cnt + len(vali_input_data)
+        vali_pi, vali_mu, vali_sigma = mlp(vali_input_data)
 
-            # Compute the error/ metric
-            vali_nll = cal_metric(vali_pi, vali_mu, vali_sigma, vali_target, N_gaussians, vali_setting, MIN_LOSS,device)
-            total_vali_metric += vali_nll
+        # Compute the error/ metric
+        vali_nll = cal_metric(vali_pi, vali_mu, vali_sigma, vali_target, N_gaussians, vali_setting, MIN_LOSS,device)
+        total_vali_metric += vali_nll
 
-            # Sum up NLL of all vali data
-            GT_metric += torch.sum(vali_metric,dim=0)
+        # Sum up NLL of all vali data
+        GT_metric += torch.sum(vali_metric,dim=0)
 
-        # Get metric of GT model
-        GT_metric = GT_metric/cnt
+    # Get metric of GT model
+    GT_metric = GT_metric/cnt
 
-        total_vali_metric = total_vali_metric/cnt
+    total_vali_metric = total_vali_metric/cnt
 
     return total_vali_metric,GT_metric
 

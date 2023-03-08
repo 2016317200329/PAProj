@@ -4,23 +4,25 @@ class DefaultConfig(object):
     N_gaussians = 3  # nums of Gaussian kernels
 
     # dataset划分
-    batch_size = 40
+    batch_size = 40     # 40比较好了
     train_pct = 0.7
     vali_pct = 0.2
     test_pct = 0.1
 
-    # train and optim.
-    # learning_rate = 5e-1
-    # lr_for_mu = 5e-1  # 给mu单独设置learning rate
-
+    # train and optim                  .
     ####### 一般是5e-1，如果容易出现NaN，改成1e-2
-    learning_rate = 1e-2
-    lr_for_pi = 1e-2   # 给pi单独设置learning rate
-    lr_for_mu = 1e-1   # 给mu单独设置learning rate
-    lr_for_sigma = 1e-2
+    learning_rate = 5e-2                            # 1e-3>5e-2
+    lr_for_pi = 5e-2   # 给pi单独设置learning rate   # 影响其次,1e-3>5e-2
+    lr_for_mu = 5e-2   # 给mu单独设置learning rate   # 1e-2和5e-2都可以
+    lr_for_sigma = 1e-3                            # 影响比较大。5e-3>1e-3
+
+    # learning_rate = 5e-2                            # 1e-3>5e-2
+    # lr_for_pi = 1e-3   # 给pi单独设置learning rate   # 影响其次,1e-3>5e-2
+    # lr_for_mu = 5e-2   # 给mu单独设置learning rate   # 1e-2和5e-2都可以
+    # lr_for_sigma = 1e-2                            # 影响比较大。5e-3>1e-3
 
     ############## tensorboard
-    logs_str = f"kernel=10_stride=5"
+    logs_str = f"padding-8"
     tag_str = f""
 
     #### For W loss
@@ -29,7 +31,11 @@ class DefaultConfig(object):
     # lr_for_sigma = 1e-4
 
     lr_decay = 0.95      # when val_loss increase, lr = lr*lr_decay
-    weight_decay = 1e-3  # for optimizer (regularization)
+    weight_decay = 1e-3  # for optimizer (regularization)   # 1e-3比较好
+
+    # For scheduler
+    StepLR_step_size = 10
+    StepLR_gamma = 0.9
 
     SAFETY = 1e-30
 
@@ -37,7 +43,6 @@ class DefaultConfig(object):
     SCALE = 1
 
     ################### DATA PATH ######################
-
 
     # Training data
     # train_path = r"../data/train_100"
@@ -55,8 +60,9 @@ class DefaultConfig(object):
 
     # arr_path = r"../data/arr_selected/arr_targets_5_DA_P=0.5_N_c=3_K=2.npy"
 
-    # target_path_loss = r"../data/targets_5_DA_P=1_N_c=3"
-    # target_path_loss = r"../data/targets_5_DA_P=0.5_N_c=2"
+    # target_path_loss = r"../data/targets_5_DA_P=1_N_c=3"        # 表现存疑
+    # target_path_loss = r"../data/targets_5_DA_P=0.5_N_c=2"      # 可以考虑
+    # target_path_loss = r"../data/targets_5_DA_P=0.5_N_c=3"        # 差不多
     target_path_loss = r"../data/targets_5"
     # target_path = r"../data/targets_5_cdf"
 
@@ -72,9 +78,6 @@ class DefaultConfig(object):
     # Net path
     net_root_path = "../net_saved/"
 
-    # For scheduler
-    StepLR_step_size = 20
-    StepLR_gamma = 0.8
 
 class bcolors:
     HEADER = '\033[95m'
