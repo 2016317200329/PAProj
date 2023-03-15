@@ -7,8 +7,10 @@
 import geomloss
 import torch
 import torch.nn as nn
-
-
+import torch.nn.functional as F
+import logging
+logging.basicConfig(filename="loss_info",filemode="w",level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 def cal_metric(Pi, Mu, Sigma, Duration, N_gaussians, vali_setting,MIN_LOSS,device):
     """
@@ -39,7 +41,8 @@ def cal_metric(Pi, Mu, Sigma, Duration, N_gaussians, vali_setting,MIN_LOSS,devic
         target = Duration[i,:,0]
         pi = Pi[i,:]
         # m = torch.distributions.Normal(loc=Mu[i,:], scale=Sigma[i,:])
-        m = torch.distributions.Laplace(loc=Mu[i,:], scale=Sigma[i,:])
+        m = torch.distributions.Weibull(Mu[i,:], Sigma[i,:])
+        # m = torch.distributions.Laplace(loc=Mu[i,:], scale=Sigma[i,:])
 
         # Drop padded data and Expanded to the same dim
         idx = torch.nonzero(target)
@@ -89,12 +92,13 @@ def loss_fn_v2(Pi, Mu, Sigma, Duration, N_gaussians,TARGET, eps, device):
 
     """
     loss_sum = torch.tensor(0.,device=device,requires_grad=True)
-
+    # logger.info('Start loss')
     for i in range(len(Pi)):
 
         target = Duration[i,:,0]
         pi = Pi[i,:]
         m = torch.distributions.Normal(loc=Mu[i,:], scale=Sigma[i,:])
+        # m = torch.distributions.Weibull(Mu[i,:],Sigma[i,:])
         # m = torch.distributions.Laplace(loc=Mu[i,:], scale=Sigma[i,:])
 
         # with torch.no_grad():
@@ -107,11 +111,10 @@ def loss_fn_v2(Pi, Mu, Sigma, Duration, N_gaussians,TARGET, eps, device):
         # loss_1 = torch.exp(m.log_prob(target_nonzero_2))
 
         loss_1 = (m.cdf(target_nonzero_2+ TARGET/2) - m.cdf(target_nonzero_2 - TARGET/2)).to(device=device)
-
         # loss_2 是MDN的概率密度value
         loss_2 = torch.sum(loss_1 * pi, dim=1)
-
         assert torch.all(loss_2) >= 0, "in loss, loss_2<0"
+        # logger.debug(f'loss: {loss_2}')
 
         ## 两种截断的方式都ok：
         ## 方法一：在MDN的prob上设定最小值；
@@ -260,7 +263,7 @@ def loss_fn_cdf(Pi, Mu, Sigma, Target, N_gaussians,device):
 # # 当input的shape是[50,3]时，输出应该是50个GMM
 # # 对这50个GMM看能生成什么output
 
-def loss_fn_CE(Pi, Mu, Sigma, Target, N_gaussians,device):
+def loss_fn_CE(Pi, Mu, Sigma, Target, N_gaussians, TARGET, eps, device):
     """
     计算交叉熵loss
     Parameters
@@ -276,41 +279,44 @@ def loss_fn_CE(Pi, Mu, Sigma, Target, N_gaussians,device):
 
     """
     loss_sum = torch.tensor(0.,device=device,requires_grad=True)
+    kl_loss = nn.KLDivLoss(reduction="sum",log_target=True)     # input进去的值必须log化
 
-    # for each GMM
+    # For each GMM
     for i in range(len(Pi)):
-        target = Target[i,:,0]
-        prob_target = Target[i,:,1]
+        target = torch.unique(Target[i],dim=0)
+        n_target = target[:,0]
+        p_target = target[:, 1]
+
+        non_zero_idx = torch.nonzero(n_target)
+        n = n_target[non_zero_idx]              # 去掉padding的zero? 现在还有zero吗? 取决于collate方式
+        p = p_target[non_zero_idx]
+
         pi = Pi[i,:]
         m = torch.distributions.Normal(loc=Mu[i,:], scale=Sigma[i,:])
+        x = torch.repeat_interleave(n, repeats=N_gaussians, dim=1)                 # expand dim
+        loss_1 = (m.cdf(x+ TARGET/2) - m.cdf(x - TARGET/2)).to(device=device)      # loss_1 是高斯分布的概率密度value
+        loss_2 = torch.sum(pi*loss_1,dim=1).unsqueeze(dim=1)                       # loss_2 是MDN的概率密度value
 
-        # Drop padded data and Expanded to the same dim
-        #### 写法一：work。无原地变换
-        idx = torch.nonzero(target)
-        target_nonzero = torch.squeeze(target[idx])
-        prob_target_nonzero = torch.squeeze(prob_target[idx])
-
-        target_nonzero_2 = torch.repeat_interleave(target_nonzero.unsqueeze(dim=1), repeats=N_gaussians, dim=1).to(device)
-
-        # loss_1 是高斯分布的概率密度value
-        loss_1 = torch.exp(m.log_prob(target_nonzero_2))
-
-        # loss_2 是MDN的概率密度value
-        loss_2 = torch.sum(loss_1 * pi, dim=1)
+        assert torch.all(loss_2) >= 0, "in loss, loss_2<0"
+        # 一般p不会是zero
+        # 就是怕y_pred出现zero
+        loss_3 = kl_loss(torch.log(loss_2),torch.log(p))
+        # print("loss_3: ",loss_3)
+        print("p.log(): ",p.log())
+        print("loss_2.log(): ",loss_2.log())
+        loss_sum = loss_sum + loss_3
 
         # loss_4是KL loss
         # loss_4 = -prob_target_nonzero*torch.log(loss_2) + prob_target_nonzero*torch.log(prob_target_nonzero)
-        # print("prob_target_nonzero shape:",prob_target_nonzero.shape)
         # print("loss_2 shape:",loss_2.shape)
-
-        loss_4 = -prob_target_nonzero*torch.log(loss_2+MIN_LOSS)+ prob_target_nonzero*torch.log(prob_target_nonzero)
-        loss_sum = torch.sum(loss_4)+loss_sum
+        #
+        # loss_4 = -prob_target_nonzero*torch.log(loss_2+MIN_LOSS)+ prob_target_nonzero*torch.log(prob_target_nonzero)
+        # loss_sum = torch.sum(loss_4)+loss_sum
 
     loss_ts = loss_sum/len(Pi)
     return loss_ts
 
-
-p = 1
+p = 2
 entreg = .1 # entropy regularization factor for Sinkhorn
 factor = 1  # prob的放大系数
 # 若以欧式距离为metric，则cost function可以直接用geomloss提供的 Sinkhorn快速解
@@ -348,7 +354,9 @@ def loss_fn_WD(Pi, Mu, Sigma, Target, N_gaussians,TARGET,device):
         y_target = torch.cat([n,p],dim=1)
 
         pi = Pi[i,:]
-        m = torch.distributions.Normal(loc=Mu[i,:], scale=Sigma[i,:])
+        # m = torch.distributions.Normal(loc=Mu[i,:], scale=Sigma[i,:])
+        m = torch.distributions.Weibull(Mu[i,:],Sigma[i,:])
+
         x = torch.repeat_interleave(n, repeats=N_gaussians, dim=1)   # expand dim
         y = (m.cdf(x+TARGET) - m.cdf(x)).to(device=device)
         y_cdf = torch.sum(pi*y,dim=1).unsqueeze(dim=1)*factor
@@ -357,6 +365,76 @@ def loss_fn_WD(Pi, Mu, Sigma, Target, N_gaussians,TARGET,device):
         loss_sum = OTLoss(y_pred,y_target) + loss_sum
 
     return loss_sum/len(Pi)
+
+
+def loss_fn_wei(Pi, Mu, Sigma, Duration, N_gaussians, TARGET, eps, device):
+    """
+    计算NLL loss
+    Parameters
+    ----------
+    Pi
+    Mu
+    Sigma
+    Duration
+    N_gaussians
+    eps: SAFETY
+
+    Returns
+    -------
+
+    """
+    loss_sum = torch.tensor(0.,device=device,requires_grad=True)
+    # logger.info('Start loss')
+    for i in range(len(Pi)):
+
+        target = Duration[i,:,0]
+        pi = Pi[i,:]
+        m = torch.distributions.Weibull(Mu[i,:],Sigma[i,:])
+
+        # with torch.no_grad():
+        # Drop padded data and Expanded to the same dim
+        idx = torch.nonzero(target)
+        target_nonzero = target[idx]
+        target_nonzero_2 = target_nonzero.repeat(1,N_gaussians).to(device)
+
+        # loss_1 是高斯分布的概率密度value
+        # loss_1 = torch.exp(m.log_prob(target_nonzero_2))
+
+        # print("target_nonzero_2: ",target_nonzero_2)
+
+        # loss_1 = (m.cdf(target_nonzero_2+ TARGET/2) - m.cdf(torch.clamp((target_nonzero_2 - TARGET/2),target_nonzero_2))).to(device=device)
+        loss_1 = (m.cdf(target_nonzero_2 + TARGET) - m.cdf(target_nonzero_2)).to(device=device)
+        # logger.debug(f'loss 1: {loss_1}')
+        # print("loss_1", loss_1)
+        # loss_2 是MDN的概率密度value
+        loss_2 = torch.sum(loss_1 * pi, dim=1)
+        assert torch.all(loss_2) >= 0, "in loss, loss_2<0"
+
+
+        ## 两种截断的方式都ok：
+        ## 方法一：在MDN的prob上设定最小值；
+        loss_3 = torch.clamp(loss_2,min=eps)
+        loss_4 = torch.log(loss_3)
+        loss_sum = -torch.sum(loss_4) + loss_sum
+
+        # ## 方法二：在prob of each sample后加一个safety数 SAFETY
+        # loss_3 = -torch.log(loss_2+SAFETY)
+
+        ############ Punishment ############
+        #### 统计每个mu距离其他mu的距离，然后sum
+        # a = Mu[i,:].reshape(1,-1)
+        # b = Pi[i,:].reshape(1,-1)
+        # loss_dist = -torch.sum(torch.sqrt((a- a.T)**2))
+        # loss_dist = -torch.sum(torch.sqrt((b- b.T)**2))
+
+        # loss_sum = torch.sum(loss_3) + loss_sum
+
+        # print("loss_dist:",loss_dist)
+        # print("loss_3:",torch.sum(loss_3))
+
+    # 最后loss求一下平均
+    return (loss_sum)/len(Pi)
+
 
 
 def validate(mlp,val_loader,N_gaussians, MIN_LOSS, device):

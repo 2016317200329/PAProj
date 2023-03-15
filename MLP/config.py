@@ -1,7 +1,7 @@
 class DefaultConfig(object):
-    GT_CHOSEN = 0
+    GT_CHOSEN = 1
 
-    N_gaussians = 3  # nums of Gaussian kernels
+    N_gaussians = 2  # nums of Gaussian kernels
 
     # dataset划分
     batch_size = 40     # 40比较好了
@@ -10,17 +10,15 @@ class DefaultConfig(object):
     test_pct = 0.1
 
     # train and optim                  .
-    ####### 一般是5e-1，如果容易出现NaN，改成1e-2
-    learning_rate = 5e-2                            # 1e-3>5e-2
-    lr_for_pi = 5e-2   # 给pi单独设置learning rate   # 影响其次,1e-3>5e-2
-    lr_for_mu = 5e-2   # 给mu单独设置learning rate   # 1e-2和5e-2都可以
-    lr_for_sigma = 1e-3                            # 影响比较大。5e-3>1e-3
+    learning_rate = 5e-3                            # 1e-3, 5e-3
+    lr_for_pi = 1e-3   # 给pi单独设置learning rate   # 影响其次,1e-3>5e-2
+    lr_for_mu = 1e-2   # 给mu单独设置learning rate   # 1e-2和5e-2都可以
+    lr_for_sigma = 5e-3                            # 影响比较大。5e-3>1e-3
 
-    # learning_rate = 5e-2                            # 1e-3>5e-2
-    # lr_for_pi = 1e-3   # 给pi单独设置learning rate   # 影响其次,1e-3>5e-2
-    # lr_for_mu = 5e-2   # 给mu单独设置learning rate   # 1e-2和5e-2都可以
-    # lr_for_sigma = 1e-2                            # 影响比较大。5e-3>1e-3
 
+    ####
+    lr_for_shape = 1e-4
+    lr_for_scale = 1e-3
     ############## tensorboard
     logs_str = f"padding-8"
     tag_str = f""
@@ -31,11 +29,11 @@ class DefaultConfig(object):
     # lr_for_sigma = 1e-4
 
     lr_decay = 0.95      # when val_loss increase, lr = lr*lr_decay
-    weight_decay = 1e-3  # for optimizer (regularization)   # 1e-3比较好
+    weight_decay = 5e-2  # for optimizer (regularization)   # 1e-3比较好
 
     # For scheduler
     StepLR_step_size = 10
-    StepLR_gamma = 0.9
+    StepLR_gamma = 0.8
 
     SAFETY = 1e-30
 
@@ -57,13 +55,15 @@ class DefaultConfig(object):
     arr_flag = False        # whether drop uniform data
     # target_path_loss = r"../data/targets_5_DA_P=0.5_N_c=3"
     # arr_path = r"../data/arr_selected/arr_targets_5_DA_P=0.5_N_c=3_K=3.npy"
+    arr_path = r"shuffled_indices.npy"
 
     # arr_path = r"../data/arr_selected/arr_targets_5_DA_P=0.5_N_c=3_K=2.npy"
 
     # target_path_loss = r"../data/targets_5_DA_P=1_N_c=3"        # 表现存疑
-    # target_path_loss = r"../data/targets_5_DA_P=0.5_N_c=2"      # 可以考虑
-    # target_path_loss = r"../data/targets_5_DA_P=0.5_N_c=3"        # 差不多
-    target_path_loss = r"../data/targets_5"
+    target_path_loss = r"../data/targets_5_DA_P=0.5_N_c=2"      # 可以考虑，优先这个
+    # target_path_loss = r"../data/targets_5_DA_P=0.5_N_c=3"        # 和上面差不多
+    # target_path_loss = r"../data/targets_5"
+    # target_path_loss = r"../data/targets"
     # target_path = r"../data/targets_5_cdf"
 
     # data keys

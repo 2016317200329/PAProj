@@ -250,19 +250,3 @@ class SACauchy(SimulatedAnnealingValue):
 SA = SAFast
 
 
-class SA_TSP(SimulatedAnnealingBase):
-    def cool_down(self):
-        self.T = self.T_max / (1 + np.log(1 + self.iter_cycle))
-
-    def get_new_x(self, x):
-        x_new = x.copy()
-        new_x_strategy = np.random.randint(3)
-        if new_x_strategy == 0:
-            x_new = mutation.swap(x_new)
-        elif new_x_strategy == 1:
-            x_new = mutation.reverse(x_new)
-        elif new_x_strategy == 2:
-            x_new = mutation.transpose(x_new)
-
-        return x_new
-
