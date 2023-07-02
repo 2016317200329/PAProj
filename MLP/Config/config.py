@@ -3,6 +3,9 @@ class DefaultConfig(object):
 
     N_gaussians = 2  # nums of Gaussian kernels
 
+    seed = 2
+    EPOCH_NUM = 50
+
     # dataset划分
     batch_size = 40     # 40比较好了
     train_pct = 0.7
@@ -15,10 +18,9 @@ class DefaultConfig(object):
     lr_for_mu = 1e-2   # 给mu单独设置learning rate   # 1e-2和5e-2都可以
     lr_for_sigma = 5e-3                            # 影响比较大。5e-3>1e-3
 
-
-    ####
-    lr_for_shape = 1e-4
-    lr_for_scale = 1e-3
+    #### Weibull
+    lr_for_shape = 1e-3
+    lr_for_scale = 5e-3
     ############## tensorboard
     logs_str = f"padding-8"
     tag_str = f""
@@ -43,40 +45,41 @@ class DefaultConfig(object):
     ################### DATA PATH ######################
 
     # Training data
-    # train_path = r"../data/train_100"
-    # train_path = r"../data/train_60"
-    train_path = r"../data/train_300_v1"
+    # train_path = r"../data/train_300_all"
+    train_path = r"../data/train_300_uniq_all"      # 用GT-2(uniq)
+
 
     # Target data for metric calculation
-    target_path_metric = r"../data/targets"
+    # target_path_metric = r"../data/targets"
+    target_path_metric = r"../data/targets_all"
 
     # Target data for loss calculation
     TARGET = 5
     arr_flag = False        # whether drop uniform data
     # target_path_loss = r"../data/targets_5_DA_P=0.5_N_c=3"
     # arr_path = r"../data/arr_selected/arr_targets_5_DA_P=0.5_N_c=3_K=3.npy"
-    arr_path = r"shuffled_indices.npy"
+    # arr_path = r"shuffled_indices.npy"
+    arr_path = r"../data_handler/idx_GT2_better.pickle"
 
     # arr_path = r"../data/arr_selected/arr_targets_5_DA_P=0.5_N_c=3_K=2.npy"
 
-    # target_path_loss = r"../data/targets_5_DA_P=1_N_c=3"        # 表现存疑
-    target_path_loss = r"../data/targets_5_DA_P=0.5_N_c=2"      # 可以考虑，优先这个
-    # target_path_loss = r"../data/targets_5_DA_P=0.5_N_c=3"        # 和上面差不多
-    # target_path_loss = r"../data/targets_5"
-    # target_path_loss = r"../data/targets"
-    # target_path = r"../data/targets_5_cdf"
+    target_path_loss = r"../data/targets_all_5_DA_P=0.5_N_c=2"
 
     # data keys
-    data_key_path = "../data/target_datakey.csv"
+    # data_key_path = "../data/target_datakey.csv"
+    data_key_path = "../data/target_datakey_all.csv"
 
     # NLL metric
     MIN_LOSS = 1e-30
-    NLL_metric_path = "../data/GT_metric/NLL_metric_GT_Tgt=1_e30.csv"
+    # NLL_metric_path = "../data/GT_metric/NLL_metric_GT_Tgt=1_e30.csv"
     # NLL_metric_path = "../data/GT_metric/NLL_metric_GT_Tgt=1_e40.csv"
     # NLL_metric_path = "../data/GT_metric/NLL_metric_GT_Tgt=1_e50.csv"
+    # NLL_metric_path = r"../data/GT_metric/NLL_metric_GT_Tgt=1_e30_all.csv"
+    NLL_metric_path = r"../data/GT_metric/NLL_metric_GT_Tgt=1_e30_all_compare.csv"
 
     # Net path
     net_root_path = "../net_saved/"
+
 
 
 class bcolors:
