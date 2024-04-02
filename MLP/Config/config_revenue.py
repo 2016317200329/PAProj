@@ -9,10 +9,12 @@ class DefaultConfig(object):
     ########################################
     ARTIFICIAL = False
     USE_VOUCHER = True
-    # seed for real-data = [3,9,20,108,277]
+    SET_VAL = False
+
+    # seed for real-data = [3,31,204,223,407]
     # seed for artificial data = []
-    seed = 407
-    noise_pct = 0  # 噪音占比:我们希望生成的data总体上最多浮动的百分比noise_pct
+    seed = 31
+    noise_pct = 0.05  # 噪音占比:我们希望生成的data总体上最多浮动的百分比noise_pct
     ########################################
 
     train_pct = 0.7
@@ -99,8 +101,8 @@ class DefaultConfig(object):
         # Net saving path
         net_root_path = "../MLP/net_saved/MDN_seed=" + str(seed) + ".pth"
 
-        # save path
-        net_save_path = "../data/revenue/output_MDN_seed="+str(seed)+".csv"
+        # Saving path for revenue estimates
+        params_save_path = "../data/revenue/output_MDN_seed="+str(seed)+".csv"
 
     # Target data for loss calculation
     TARGET = 1

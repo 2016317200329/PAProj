@@ -1,93 +1,88 @@
-class DefaultConfig(object):
-    # tensorboard
-    logs_str = r"GT_2_trial=1"
-    tag_str = r""
+import os.path
+from MLP.Config.config_base import BaseConfig  # 必须写full-path
 
-    # 人工数据集or真实数据集
-    ARTIFICIAL = False
+class DefaultConfig(BaseConfig):
+    def __init__(self):
+        super().__init__()  # 调用父类的__init__方法以继承基础配置
 
-    # dataset划分
-    batch_size = 48
-    train_pct = 0.7
-    vali_pct = 0.2
-    test_pct = 0.1
+        # tensorboard
+        self.logs_str = r"GT_2_trial=1"
+        self.tag_str = r""
 
-    # train and optim
-    if ARTIFICIAL:
-        # For artificial dataset
-        learning_rate = 5e-3                           # 1e-3, 5e-3
-        lr_for_labda = 5e-3   # 给pi单独设置learning rate   # 影响其次,1e-3>5e-2
-        lr_for_alpha = 5e-3   # 给mu单独设置learning rate   # 1e-2和5e-3都可以
+        ######*********CHECK CAREFULLY***********########
 
-    else:
-        # For real dataset
-        learning_rate = 1e-2                                # 1e-3, 5e-3
-        lr_for_labda = 5e-3   # 给pi单独设置learning rate   # 影响其次,1e-3>5e-2
-        lr_for_alpha = 1e-2   # 给mu单独设置learning rate   # 1e-2和5e-2都可以
+        self.ARTIFICIAL = True      # If True, use the syns dataset; If False, use the real dataset.
+        self.SET_VAL = False         # If False, 70% for training, 20% for testing; If True: the 20% is for vali, the 10% left is for testing
+        self.DRAW_VAL = False        # Draw of not.
 
-    lr_decay = 0.95      # when val_loss increase, lr = lr*lr_decay
-    weight_decay = 5e-2  # for optimizer (regularization)   # 1e-3比较好
+        self.USE_DA = False           # Use data augementation or not. This only work for REAL data
 
-    # For scheduler
-    StepLR_step_size = 5
-    StepLR_gamma = 0.9
+        self.noise_pct = 0.05        # 噪音占比:我们希望生成的data总体上最多浮动的百分比noise_pct
 
-    Exp_gamma = 0.98
+        ######*********CHECK CAREFULLY***********########
 
-    SAFETY = 1e-30
+        # train and optim
+        if self.ARTIFICIAL:
+            # For artificial dataset
+            self.batch_size = 48  # 48is great
+            self.EPOCH_NUM = 20 # 15
 
-    # Training data的粒度，画mdn时会使用到，
-    SCALE = 1
+            self.learning_rate = 1e-3                           # 1e-3, 5e-3
+            self.lr_for_labda = 1e-3   # 给pi单独设置learning rate   # 影响其次,1e-3>5e-2
+            self.lr_for_alpha = 5e-3   # 给mu单独设置learning rate   # 1e-2和5e-3都可以 # 【1010:1e-2】
 
-    ################### DATA PATH ######################
+        else:
+            # For real dataset
+            self.batch_size = 48  # 48is greate
 
-    # Training data
-    train_path = r"../data/train_8_all"
+            self.learning_rate = 1e-2                                # 1e-3, 5e-3
+            self.lr_for_labda = 5e-3   # 给pi单独设置learning rate   # 影响其次,1e-3>5e-2
+            self.lr_for_alpha = 5e-3   # 给mu单独设置learning rate   # 1e-2和5e-2都可以
 
-    noise_pct = 0.05  # 噪音占比:我们希望生成的data总体上最多浮动的百分比noise_pct
-    if ARTIFICIAL:
-        target_path_metric = "../data/artificial_targets_v2_" + "noise=" + str(noise_pct)
-        target_path_loss = "../data/artificial_targets_v2_" + "noise=" + str(noise_pct) + "_ls_T"
-    else:
-        target_path_metric = "../data/targets_all"
-        target_path_loss = "../data/targets_all_ls_T"
+        self.lr_decay = 0.95      # when val_loss increase, lr = lr*lr_decay
+        self.weight_decay = 5e-2  # for optimizer (regularization)   # 1e-3比较好
 
-    # Target data for metric calculation
-    if ARTIFICIAL:
-        params_opitim_path = r"../data/auction_assign.csv"
-    else:
-        params_opitim_path = r"../data/SA_PT/params_opitim_delta_T.csv"
+        # For scheduler
+        self.StepLR_step_size = 5
+        self.StepLR_gamma = 0.9
 
-    # Target data for loss calculation
-    TARGET = 5
-    arr_flag = False        # whether drop uniform data
+        self.Exp_gamma = 0.98
 
-    # data keys
-    data_key_path = "../data/target_datakey_all.csv"
+        self.SAFETY = 1e-30
 
-    # NLL metric
-    MIN_LOSS = 1e-30
+        # Training data的粒度，画mdn时会使用到，
+        self.SCALE = 1
 
-    if ARTIFICIAL:
-        NLL_metric_path = r"../data/GT_metric/NLL_metric_GT_Tgt=1_e30_artificial_v_2.csv"
+        ################### DATA PATH ######################
 
-    else:
-        NLL_metric_path = "../data/GT_metric/NLL_metric_GT_Tgt=1_e30.csv"
+        # Training data
+        self.train_path = os.path.join(self.data_root,"data/train_8_all")
 
-    # Net path
-    net_root_path = "net_saved/"
+        if self.ARTIFICIAL:
+            self.target_path_metric = os.path.join(self.data_root, "data/artificial_targets_v2_" + "noise=" + str(self.noise_pct))
+            self.target_path_loss = os.path.join(self.data_root, "data/artificial_targets_v2_" + "noise=" + str(self.noise_pct) + "_ls_T")
+        else:
+            self.target_path_metric = os.path.join(self.data_root,"data/targets_all")
+            self.target_path_loss = os.path.join(self.data_root,"data/targets_all_ls_T")
+            # target_path_metric = "../data/targets_all"
+            # target_path_loss = "../data/targets_all_ls_T"
 
+        # Target data for metric calculation
+        if self.ARTIFICIAL:
+            self.params_opitim_path = os.path.join(self.data_root, "data/auction_assign.csv")
+        else:
+            self.params_opitim_path = os.path.join(self.data_root,"data/SA_PT/params_opitim_delta_T.csv")
 
+            # params_opitim_path = r"../data/SA_PT/params_opitim_delta_T.csv"
 
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+        # Target data for loss calculation
+        self.TARGET = 1
+        self.arr_flag = False        # whether drop uniform data
 
-# 原文链接：https://blog.csdn.net/lx_ros/article/details/122811361
+        if self.ARTIFICIAL:
+            self.NLL_metric_path = os.path.join(self.data_root, "data/GT_metric/NLL_metric_GT_Tgt=1_e30_artificial_v_2_noise="+str(self.noise_pct)+".csv")
+
+        else:
+            self.NLL_metric_path = os.path.join(self.data_root, "data/GT_metric/NLL_metric_GT_Tgt=1_e30.csv")
+
+            # NLL_metric_path = "../data/GT_metric/NLL_metric_GT_Tgt=1_e30.csv"

@@ -80,6 +80,7 @@ class SimulatedAnnealingBase(SkoBase):
         stay_counter = 0
         while True:
             # print("-------------- {}_th iteration --------------\n".format(self.iter_cycle))
+            # wyj: 一共试探L次可能的方向
             for i in range(self.L):
                 # print("---------- {}/L ----------\n".format(i))
                 x_new = self.get_new_x(x_current)
@@ -88,7 +89,6 @@ class SimulatedAnnealingBase(SkoBase):
 
                 # Metropolis
                 df = y_new - y_current
-                # print(f"df: {df}, y_new: {y_new}")
                 if ((df < 0.0) | (np.exp(-df / self.T) > np.random.rand())):
                     x_current, y_current = x_new, y_new
                     if y_new < self.best_y:
@@ -106,7 +106,7 @@ class SimulatedAnnealingBase(SkoBase):
             else:
                 stay_counter = 0
 
-            if self.T < self.T_min:
+            if self.T <= self.T_min:
                 stop_code = 'Cooled to final temperature'
                 print("STOP CODE: ", stop_code)
                 break
@@ -166,7 +166,8 @@ class SAFast(SimulatedAnnealingValue):
         # wyj: self.n_dim = len(x0)
         r = np.random.uniform(-1, 1, size=self.n_dim)
         # wyj: np.sign(r)控制（正负）方向
-        # wyj: ((1 + 1.0 / self.T) ** np.abs(r) - 1.0)一定是负的而且基本在(-1,0)靠近0
+        # wyj: ((1 + 1.0 / self.T) ** np.abs(r) - 1.0)一定是正的而且靠近0
+        # wyj: 因此更新的步长主要取决于 T的大小
         xc = np.sign(r) * self.T * ((1 + 1.0 / self.T) ** np.abs(r) - 1.0)
         x_new = x + xc * self.hop
         # print("x_new before clipping: ", x_new)
@@ -194,20 +195,18 @@ class SABoltzmann(SimulatedAnnealingValue):
         self.learn_rate = kwargs.get('learn_rate', 0.5)
 
     def get_new_x(self, x):
-        a, b = np.sqrt(self.T), self.hop / 3.0 / self.learn_rate
+        a, b = np.sqrt(self.T), self.hop / 3.0 / self.learn_rate    # a,b > 0
         # wyj: in our case, std = b = self.hop / 3.0 / self.learn_rate mostly
-        # wyj: !Alert! When a is less than any figure in b, a becomes std and std is always in shape of b
+        # wyj: !Alert! When a is less than any number in b, a becomes std and std is always in shape of b
         std = np.where(a < b, a, b)
         # wyj: xc is a noise. original expression:
-        # xc = np.random.normal(0, 1.0, size=self.n_dim)
+        # xc = np.random.normal(0, 1.0, size=self.n_dim),
         # wyj: in our case, std * self.learn_rate = self.hop / 3.0 / self.learn_rate * self.learn_rate = (self.hop / 3.0)
-        # wyj: self.learn_rate is USELESS!! x_new = x + xc*(self.hop / 3.0)
+        # wyj: self.learn_rate is USELESS!! So the final expression: x_new = x + xc*(self.hop / 3.0)
         # wyj altered:
         # wyj: 从0.1改到0.2
         xc = np.random.normal([0.0, 0.0], [0.2, 3.0], size=(self.n_dim))
-        # xc = np.random.normal([0.0, 0.0,0.0], [0.1, 1.0, 3.0], size=(self.n_dim))
         x_new = x + xc * std * self.learn_rate
-        # print("x_new before clipping: ",x_new)
         if self.has_bounds:
             return np.clip(x_new, self.lb, self.ub)
         return x_new
