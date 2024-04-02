@@ -149,3 +149,4 @@ cython_debug/
 !/data_handler/datasets/stsbenchmark.tsv.gz
 !/MLP/logs-MLP/events.out.tfevents.1662361013.LAPTOP-D5FKO4T5
 !/MLP/logs-MLP/
+!/MLP/net_saved/NN_params_infer_GT3_synthetic_v2_noise=0.05_seed=534.pth
