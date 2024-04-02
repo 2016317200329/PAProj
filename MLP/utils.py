@@ -49,6 +49,19 @@ def save_data_idx(dataset, arr_flag=False, arr_path=None):
 
     return shuffled_indices
 
+def save_data_idx_simplified(LEN):
+    """
+    因为objective function会被执行很多次，所以这里先保存一下idx，使得所有objective在同一组dataset上进行。
+    然后在tuning时，会在shuffle_time组不同的dataset split上进行，用以取平均
+    Args:
+    dataset:
+    opt:
+    shuffle_time: The num of list of index to be generated.
+    """
+    shuffled_indices = np.random.permutation(LEN)
+
+    return shuffled_indices
+
 def get_data_idx(shuffled_indices,train_pct, vali_pct):
     """
     To get data split idx according to shuffled 'shuffled_indices'

@@ -299,7 +299,7 @@ if __name__ == '__main__':
             model, _ = load_checkpoint(model_path, model)
             # save_checkpoint(model, hyperparameters, model_path)
     if opt.ARTIFICIAL:
-        if (seed == 66 and MODEL_NAME == "GT1+GT3") \
+        if (seed == 66 and MODEL_NAME == "GT1+GT3") or (seed == 35 and MODEL_NAME == "GT1+GT3")\
             or (seed == 204 and MODEL_NAME == "GT2+GT3"):
             model_path = get_MDN_save_path(opt.ARTIFICIAL, seed, opt.net_root_path, opt.noise_pct, MODEL_NAME + "_init")
             hyperparameters = {

@@ -180,7 +180,8 @@ if __name__ == '__main__':
 
     model = Conv_1_4(opt.N_gaussians, ch_in=len(INPUT_LIST)).to(device)  # put your model and data on the same computation device.
     if opt.ARTIFICIAL:
-        if seed == 512 and MODEL_NAME == "GT1_GT2_GT3":
+        if seed == 512 and MODEL_NAME == "GT1_GT2_GT3" \
+            or seed == 35 and MODEL_NAME == "GT1_GT3_EMD":
             model_path = get_MDN_save_path(opt.ARTIFICIAL, seed, opt.net_root_path, opt.noise_pct, MODEL_NAME + "_init")
             hyperparameters = {
                 'model_name': MODEL_NAME+"_init_",
@@ -193,6 +194,7 @@ if __name__ == '__main__':
             }
             model, _ = load_checkpoint(model_path, model)
             # save_checkpoint(model, hyperparameters, model_path)
+            # print(f"INIT DONE: {model_path}")
 
     performance = trainer(train_loader, val_loader, test_loader, model, opt, device)
 
