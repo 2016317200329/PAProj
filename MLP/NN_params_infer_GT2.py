@@ -39,12 +39,12 @@ parser = argparse.ArgumentParser(description="Run the script with a specific see
 parser.add_argument("--seed", type=int, required=True, help="Random seed for reproducibility.")
 # 解析命令行参数
 args = parser.parse_args()
+seed = args.seed
+MODEL_NAME = args.MODEL_NAME
 
 ######################### Carefully Check ####################
 from Config import config_GT2
 from Config import config_GT3
-
-MODEL_NAME = "InferNet_GT2"
 
 opt = get_model_opt(MODEL_NAME)['opt']
 
@@ -56,7 +56,6 @@ opt = get_model_opt(MODEL_NAME)['opt']
 
 # for %i in (62 149 508) do D:\Anaconda\python.exe "MLP\NN_params_infer_GT2.py" --seed %i
 
-seed = args.seed
 EPOCH_NUM = opt.EPOCH_NUM
 # seed = 512  # 712
 # seed = opt.seed
@@ -461,9 +460,10 @@ def loss_fn_InferNet_GT3(input_data, Alpha, Target_data, eps, device):
     return -loss_sum/len(input_data)
 
 
-def validate_params(mlp, data_loader, eps, device):
+def validate_params(mlp, data_loader, eps, device, MODEL_NAME):
 
-    loss_sum = torch.tensor(0., device=device, requires_grad=False)
+    NLL_sum = torch.tensor(0., device=device, requires_grad=False)
+    KL_sum = torch.tensor(0., device=device, requires_grad=False)
     GT_metric = torch.tensor([0.,0.,0.]).reshape(1,-1)
 
     cnt = 0
@@ -520,10 +520,12 @@ def validate_params(mlp, data_loader, eps, device):
             # 返回值是正值
             # GT2和GT3对于这一部分的计算逻辑是一样的
             nll_metric = SA_for_PT_funcs_delta_eq1_GT2.get_nll_meric(target_ls, U, LEN,TARGET = 1)
+            # kl_metric = SA_for_PT_funcs_delta_eq1_GT2.get_KL_meric(target, target_p, U, LEN, TARGET = 1)
 
-            loss_sum = nll_metric + loss_sum
+            NLL_sum = nll_metric + NLL_sum
+            # KL_sum = kl_metric + KL_sum
 
-    return loss_sum.detach().cpu().item() / cnt, GT_metric.detach()/ cnt
+    return NLL_sum.detach().cpu().item() / cnt
 
 def trainer(MODEL_NAME, train_loader, val_loader, test_loader, mlp, opt, device):
     """
@@ -574,26 +576,23 @@ def trainer(MODEL_NAME, train_loader, val_loader, test_loader, mlp, opt, device)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            # scaler.scale(loss).backward()  # scaler实现的反向误差传播
-            # scaler.step(optimizer)  # 优化器中的值也需要放缩
-            # scaler.update()  # 更新scaler
 
-            draw_loss(viz,total_train_step, loss.detach().cpu(), plot.win_train_loss_str)
+            # draw_loss(viz,total_train_step, loss.detach().cpu(), plot.win_train_loss_str)
 
             total_train_step += 1
 
             # torch.cuda.empty_cache()  # 会变慢不少
 
         scheduler.step()
-        # 每跑完一个epoch，存一下
-        print(f"========== IN EPOCH {epoch} the total loss is {epoch_train_loss} ==========")
+
+        # print(f"========== IN EPOCH {epoch} the total loss is {epoch_train_loss} ==========")
 
         # Vali
         mlp.eval()
         with torch.no_grad():
-            total_vali_metric, GT_metric = validate_params(mlp, val_loader, opt.MIN_LOSS, device)
-            draw_metric_wo_GT(viz, epoch, total_vali_metric)
-            print(f"========== IN EPOCH {epoch} the vali metric is {total_vali_metric}, ==========")
+            total_vali_metric, GT_metric = validate_params(mlp, val_loader, opt.MIN_LOSS, device, MODEL_NAME)
+            # draw_metric_wo_GT(viz, epoch, total_vali_metric)
+            # print(f"========== IN EPOCH {epoch} the vali metric is {total_vali_metric}, ==========")
 
             # 记录最小的total_vali_metric，并且保存此时的模型
             if total_vali_metric < min_loss:
@@ -607,18 +606,19 @@ def trainer(MODEL_NAME, train_loader, val_loader, test_loader, mlp, opt, device)
                     'batch_size': opt.batch_size,
                     'epoch_when_saved': epoch
                 }
-                print(f"model_params_MLP = {model_params_MLP}")
                 save_checkpoint(mlp,hyperparameters,model_params_MLP)
 
-        draw_loss(viz,epoch, epoch_train_loss, plot.win_train_epoch_loss_str)
+        # draw_loss(viz,epoch, epoch_train_loss, plot.win_train_epoch_loss_str)
 
     ########### Load .pth and do testing
     mlp.eval()
     with torch.no_grad():
+        # Read-in
         model_path = get_InferNet_save_path(opt.ARTIFICIAL, seed, opt.net_root_path, opt.noise_pct , MODEL_NAME)
         mlp,_ = load_checkpoint(model_path, mlp)
-        mlp.eval()                  # In case
-        total_test_metric, GT_metric = validate_params(mlp,test_loader,opt.MIN_LOSS,device)
+        total_test_metric, GT_metric = validate_params(mlp,test_loader, opt.MIN_LOSS, device, MODEL_NAME)
+
+    mlp.train()
 
     return total_test_metric,GT_metric
 
@@ -626,37 +626,33 @@ def trainer(MODEL_NAME, train_loader, val_loader, test_loader, mlp, opt, device)
 if __name__ == '__main__':
 
     setup_seed(seed)
-    running_times=1
+    print(f"========== MODEL_NAME = {MODEL_NAME} ==========")
+
     print(f"========== seed = {seed} ==========")
     print(f"========== seed = {seed} ==========")
     print(f"========== seed = {seed} ==========")
     # 画图设置
-    timestamp = int(time.time())
-    time_str = str("_") + time.strftime('%y%m%d%H%M%S', time.localtime(timestamp))
-    print(f"time_str = {time_str}")
-    env_str = MODEL_NAME + "_seed=" + str(seed) + time_str
-    viz = Visdom(env=env_str)
-
-    viz.line(X=[0.], Y=[0.], env=env_str, win=plot.win_train_loss_str, opts=dict(title=plot.win_train_loss_str))
-    viz.line(X=[0.], Y=[0.], env=env_str, win=plot.win_train_epoch_loss_str, opts=dict(title=plot.win_train_epoch_loss_str))
+    # timestamp = int(time.time())
+    # time_str = str("_") + time.strftime('%y%m%d%H%M%S', time.localtime(timestamp))
+    # print(f"time_str = {time_str}")
+    # env_str = MODEL_NAME + "_seed=" + str(seed) + time_str
+    # viz = Visdom(env=env_str)
+    #
+    # viz.line(X=[0.], Y=[0.], env=env_str, win=plot.win_train_loss_str, opts=dict(title=plot.win_train_loss_str))
+    # viz.line(X=[0.], Y=[0.], env=env_str, win=plot.win_train_epoch_loss_str, opts=dict(title=plot.win_train_epoch_loss_str))
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-
     # 数据设置
-    dataset = myDataset(opt.train_path, opt.target_path_metric, opt.target_path_loss, opt.params_opitim_path,
-                        opt.data_key_path, opt.NLL_metric_path)
+    dataset = myDataset(opt.train_path, opt.target_path_metric, opt.target_path_loss, opt.data_key_path)
     shuffled_indices = save_data_idx(dataset, opt.arr_flag)
-    train_idx, val_idx, test_idx = get_data_idx(shuffled_indices,opt.train_pct, opt.vali_pct,opt.SET_VAL)
+    train_idx, val_idx, test_idx = get_data_idx(shuffled_indices,opt.train_pct, opt.vali_pct)
     train_loader,val_loader,test_loader = get_data_loader(dataset, opt.batch_size, train_idx, val_idx, test_idx, my_collate_fn_GT2)
-    print(f"test_loader size: {test_loader.__len__() / 1276}")
-    for times in range(running_times):
 
-        model = get_model_opt(MODEL_NAME)['model'].to(device)
+    model = get_model_opt(MODEL_NAME)['model'].to(device)
 
-        total_test_metric,GT_metric = trainer(MODEL_NAME,train_loader, val_loader, test_loader, model, opt, device)
+    performance = trainer(MODEL_NAME,train_loader, val_loader, test_loader, model, opt, device)
 
-        print(f"========== MODEL_NAME =  {MODEL_NAME} | SEED = {seed}==========")
-        print(f"========== IN Test dataset, InferNet of {MODEL_NAME}:  {total_test_metric} ==========")
-        print(f"========== IN Test dataset, the GTs: {GT_metric} ==========")
-        print(f"========== IN Test dataset, the GTs: GT1,GT2(common),GT2(SA) ==========")
+    print(f"========== seed = {seed} ==========")
+    print(f"========== MODEL_NAME = {MODEL_NAME} ==========")
+    print(f"{performance}")

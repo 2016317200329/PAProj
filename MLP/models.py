@@ -51,7 +51,9 @@ class Conv_block_4(nn.Module):
         return x
 
 class Conv_1_4(nn.Module):
-    # code->generate->override methods
+    '''
+        According to `ch_in` to decide the channel num.
+    '''
     def __init__(self, n_gaussians, ch_in = 3, len_in = 300, ch_out=1, kernel_size=9, stride=3) -> None:
         super().__init__()
 
@@ -231,7 +233,7 @@ class MLP_2_1(nn.Module):
         x = torch.squeeze(x,dim=1)
         x = self.BN1(x)
 
-        x = self.LN1(x)
+        x = self.LN1(x) # a common layer
         x = F.relu(x)
 
         alpha = self.block_alpha(x)

@@ -13,7 +13,7 @@ import numpy as np
 from torch.utils.data import DataLoader, SubsetRandomSampler
 
 class myDataset(Dataset):
-    def __init__(self, train_path, target_path_metric,target_path_loss, target_params_path, key_path, metric_path):
+    def __init__(self, train_path, target_path_metric,target_path_loss, key_path):
         """
         读取data path
         target_path: target data path
@@ -27,11 +27,7 @@ class myDataset(Dataset):
         self.train_all_path = os.listdir(train_path)
         self.target_all_path = os.listdir(target_path_metric)
 
-        self.target_params_path = target_params_path
-
         self.key_path = key_path
-
-        self.metric_path = metric_path
 
     def __len__(self):
         """
@@ -55,26 +51,17 @@ class myDataset(Dataset):
         target_loss_df = pd.read_csv(target_loss_path_i_path,encoding="utf-8")
         target_metric_df = pd.read_csv(target_metric_i_path,encoding="utf-8")
 
-        target_params = pd.read_csv(self.target_params_path,encoding="utf-8")
         settings = pd.read_csv(self.key_path,encoding="utf-8")
-        metric = pd.read_csv(self.metric_path,encoding="utf-8")
-
-        target_params_df = target_params.iloc[index,:]
         settings_df = settings.iloc[index,:]
-        metric_df = metric.iloc[index,:]
 
         # Transform into numpy (not tensor!)
         train_data = np.array(train_df.values,dtype=float)
         target_loss_data = np.array(target_loss_df.values,dtype=float)
         target_metric_data = np.array(target_metric_df.values,dtype=float)
 
-        target_params_data = np.array(target_params_df.values,dtype=float)
         settings_data = np.array(0.,dtype=float)            # 'desc'无法处理, 本来应该是 settings_df
-        metric_data = np.array(metric_df.values,dtype=float)
 
-        return train_data, target_metric_data, target_loss_data, target_params_data, settings_data, metric_data
-
-
+        return train_data, target_metric_data, target_loss_data, settings_data
 
 ######################### TEST USE ########################
 
