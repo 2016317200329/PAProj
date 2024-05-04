@@ -45,9 +45,9 @@ import my_collate_fn
 from my_collate_fn import my_collate_fn_GT2
 from utils import setup_seed
 from utils import save_data_idx
-from utils import get_data_idx
 from utils import get_data_idx_bidfee
-
+from utils import get_data_loader
+from models import MLP_2_1
 # torch.set_default_tensor_type(torch.FloatTensor)
 
 
@@ -92,30 +92,28 @@ def get_model_save_path(flag,seed):
 
     return model_params_MLP
 
-def get_data_loader(dataset, shuffled_indices, opt):
-    """
-    To get dataloader according to shuffled 'shuffled_indices'
-    Args:
-        dataset:
-        shuffled_indices:
-        opt:
-
-    Returns:
-
-    """
-    # train_idx,val_idx,test_idx = get_data_idx(shuffled_indices,opt)
-    train_idx,val_idx,test_idx = get_data_idx_bidfee(shuffled_indices,opt)
-
-
-    train_loader = DataLoader(dataset=dataset, batch_size=opt.batch_size, shuffle=False, num_workers=0, drop_last=False,
-                            sampler=SubsetRandomSampler(train_idx), collate_fn=my_collate_fn_GT2)
-    val_loader = DataLoader(dataset=dataset, batch_size=opt.batch_size, shuffle=False, num_workers=0, drop_last=False,
-                            sampler=SubsetRandomSampler(val_idx), collate_fn=my_collate_fn_GT2)
-    # 注意test_loader的batch size
-    test_loader = DataLoader(dataset=dataset, batch_size=1, shuffle=False, num_workers=0, drop_last=False,
-                            sampler=SubsetRandomSampler(test_idx), collate_fn=my_collate_fn_GT2)
-
-    return train_loader,val_loader,test_loader
+# def get_data_loader(dataset, shuffled_indices, opt):
+#     """
+#     To get dataloader according to shuffled 'shuffled_indices'
+#     Args:
+#         dataset:
+#         shuffled_indices:
+#         opt:
+#
+#     Returns:
+#
+#     """
+#     train_idx,val_idx,test_idx = get_data_idx_bidfee(shuffled_indices,opt)
+#
+#     train_loader = DataLoader(dataset=dataset, batch_size=opt.batch_size, shuffle=False, num_workers=0, drop_last=False,
+#                             sampler=SubsetRandomSampler(train_idx), collate_fn=my_collate_fn_GT2)
+#     val_loader = DataLoader(dataset=dataset, batch_size=opt.batch_size, shuffle=False, num_workers=0, drop_last=False,
+#                             sampler=SubsetRandomSampler(val_idx), collate_fn=my_collate_fn_GT2)
+#     # 注意test_loader的batch size
+#     test_loader = DataLoader(dataset=dataset, batch_size=1, shuffle=False, num_workers=0, drop_last=False,
+#                             sampler=SubsetRandomSampler(test_idx), collate_fn=my_collate_fn_GT2)
+#
+#     return train_loader,val_loader,test_loader
 
 def get_params(mlp,opt):
     """
@@ -137,69 +135,6 @@ def get_params(mlp,opt):
                 {'params': mlp.block_labda.parameters(), 'lr': 5e-3}]
 
     return params
-
-
-# 参数量34
-# 1层MLP+MDN
-class MLP_1_1(nn.Module):
-    # code->generate->override methods
-    def __init__(self) -> None:
-        super().__init__()
-        self.BN1 = nn.BatchNorm1d(num_features=8,affine=True)
-
-        self.block_alpha = nn.Sequential(
-            nn.Linear(8, 1),
-            nn.Tanh()
-        )
-        self.block_labda = nn.Sequential(
-            nn.Linear(8, 1),
-            nn.ReLU()
-        )
-
-    def forward(self, x):
-        x = torch.squeeze(x,dim=1)
-        x = self.BN1(x)
-
-        alpha = self.block_alpha(x)
-        labda = self.block_labda(x)
-
-        # Clamp
-        alpha = torch.clamp(alpha,min=bound_alpha[0],max=bound_alpha[1])
-        labda = torch.clamp(labda,min=bound_labda[0],max=bound_labda[1])
-
-        return alpha,labda
-
-class MLP_2_1(nn.Module):
-    # code->generate->override methods
-    def __init__(self) -> None:
-        super().__init__()
-        self.BN1 = nn.BatchNorm1d(num_features=8,affine=True)
-        self.LN1 = nn.Linear(8,4)
-
-        self.block_alpha = nn.Sequential(
-            nn.Linear(4, 1),
-            nn.Tanh()
-        )
-        self.block_labda = nn.Sequential(
-            nn.Linear(4, 1),
-            nn.ReLU()
-        )
-
-    def forward(self, x):
-        x = torch.squeeze(x,dim=1)
-        x = self.BN1(x)
-
-        x = self.LN1(x)
-        x = F.relu(x)
-
-        alpha = self.block_alpha(x)
-        labda = self.block_labda(x)
-
-        # Clamp
-        alpha = torch.clamp(alpha,min=bound_alpha[0],max=bound_alpha[1])
-        labda = torch.clamp(labda,min=bound_labda[0],max=bound_labda[1])
-
-        return alpha,labda
 
 
 ############# Tensor #############:
@@ -541,36 +476,40 @@ if __name__ == '__main__':
 
     seed = 4
     setup_seed(seed)
-    running_times=[1]
 
     # 生成当前时间的时间戳, 作为画图的区分
-    timestamp = int(time.time())
-    time_str = str("_") + time.strftime('%y%m%d%H%M%S', time.localtime(timestamp))
-    print(f"time_str = {time_str}")
-    env_str = "params_NLL_infer_seed=" + str(seed) + time_str
-    viz = Visdom(env=env_str)
+    # timestamp = int(time.time())
+    # time_str = str("_") + time.strftime('%y%m%d%H%M%S', time.localtime(timestamp))
+    # print(f"time_str = {time_str}")
+    # env_str = "params_NLL_infer_seed=" + str(seed) + time_str
+    # viz = Visdom(env=env_str)
 
-    viz.line(X=[0.], Y=[0.], env=env_str, win=win_train_loss_str, opts=dict(title=win_train_loss_str))
-    viz.line(X=[0.], Y=[0.], env=env_str, win=win_train_epoch_loss_str, opts=dict(title=win_train_epoch_loss_str))
+    # viz.line(X=[0.], Y=[0.], env=env_str, win=win_train_loss_str, opts=dict(title=win_train_loss_str))
+    # viz.line(X=[0.], Y=[0.], env=env_str, win=win_train_epoch_loss_str, opts=dict(title=win_train_epoch_loss_str))
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-    dataset = myDataset(opt.train_path, opt.target_path_metric, opt.target_path_loss, opt.params_opitim_path,
-                        opt.data_key_path, opt.NLL_metric_path)
+    dataset = myDataset(opt.train_path, opt.target_path_metric, opt.target_path_loss, opt.data_key_path)
+
     shuffled_indices = save_data_idx(dataset, opt)
-    train_loader,val_loader,test_loader = get_data_loader(dataset, shuffled_indices, opt)
+    train_idx,val_idx,test_idx = get_data_idx_bidfee(shuffled_indices,opt)
+    train_loader,val_loader,test_loader = get_data_loader(dataset, opt.batch_size, train_idx, val_idx, test_idx, my_collate_fn_GT2)
 
-    for i in running_times:
+    model = MLP_2_1().to(device)
 
-        if opt.ARTIFICIAL:
-            model = MLP_2_1().to(device)  # put your model and data on the same computation device.
-        else:
-            model = MLP_2_1().to(device)
+    # model_path = get_model_save_path(opt.ARTIFICIAL, seed)
+    # torch.save(model.state_dict(), model_path)
 
-        # model_path = get_model_save_path(opt.ARTIFICIAL, seed)
-        # torch.save(model.state_dict(), model_path)
+    model.eval()
+    with torch.no_grad():
+        model_path = get_model_save_path(opt.ARTIFICIAL, seed)
+        model_data = torch.load(model_path)
+        model.load_state_dict(model_data)
+        total_test_metric, GT_metric = validate_params(model,test_loader,opt.MIN_LOSS,device)
 
-        total_test_metric,GT_metric = trainer(train_loader, val_loader, test_loader, model, opt, device)
-        print(f"========== IN Test dataset, NN Model:  {total_test_metric.detach().cpu().numpy()} ==========")
-        print(f"========== IN Test dataset, the GTs: {GT_metric.detach().cpu().numpy()} ==========")
-        print(f"========== IN Test dataset, the GTs: GT1,GT2(common),GT2(SA) ==========")
+
+    # total_test_metric,GT_metric = trainer(train_loader, val_loader, test_loader, model, opt, device)
+
+    print(f"========== IN Test dataset, NN Model:  {total_test_metric.detach().cpu().numpy()} ==========")
+    print(f"========== IN Test dataset, the GTs: {GT_metric.detach().cpu().numpy()} ==========")
+    print(f"========== IN Test dataset, the GTs: GT1,GT2(common),GT2(SA) ==========")

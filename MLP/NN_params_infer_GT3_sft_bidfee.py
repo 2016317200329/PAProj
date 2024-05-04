@@ -41,9 +41,11 @@ from torch.autograd.gradcheck import gradcheck
 from Config import config_GT3_sft_bidfee
 import loss
 import plot
+# import models
 import my_collate_fn
 from my_collate_fn import my_collate_fn_GT2
 from utils import *
+from models import MLP_GT3_2
 
 
 
@@ -80,7 +82,7 @@ bound_alpha = torch.tensor([-0.3,0.3],device=device)
 bound_labda = torch.tensor([0.01,18],device=device)
 
 def get_model_save_path(flag,seed):
-    model_params_MLP = opt.net_root_path + "NN_params_infer_GT3_sft_bidfee" + str(seed) + ".pth"
+    model_params_MLP = opt.net_root_path + "NN_params_infer_GT3_sft_bidfee" + ".pth"
 
     return model_params_MLP
 
@@ -126,58 +128,6 @@ def get_params(mlp,opt):
                 {'params': mlp.block_alpha.parameters(), 'lr': opt.lr_for_alpha}]
 
     return params
-
-
-# 参数量34
-# 1层MLP+MDN
-class MLP_1_1(nn.Module):
-    # code->generate->override methods
-    def __init__(self) -> None:
-        super().__init__()
-        self.BN1 = nn.BatchNorm1d(num_features=8,affine=True)
-
-        self.block_alpha = nn.Sequential(
-            nn.Linear(8, 1),
-            nn.Tanh()
-        )
-
-
-    def forward(self, x):
-        x = torch.squeeze(x,dim=1)
-        x = self.BN1(x)
-
-        alpha = self.block_alpha(x)
-
-        # Clamp
-        alpha = torch.clamp(alpha,min=bound_alpha[0],max=bound_alpha[1])
-
-        return alpha
-
-class MLP_2_1(nn.Module):
-    # code->generate->override methods
-    def __init__(self) -> None:
-        super().__init__()
-        self.BN1 = nn.BatchNorm1d(num_features=8,affine=True)
-        self.LN1 = nn.Linear(8,4)
-
-        self.block_alpha = nn.Sequential(
-            nn.Linear(4, 1),
-            nn.Tanh()
-        )
-
-    def forward(self, x):
-        x = torch.squeeze(x,dim=1)
-        x = self.BN1(x)
-
-        x = self.LN1(x)
-        x = F.relu(x)
-
-        alpha = self.block_alpha(x)
-
-        # Clamp
-        alpha = torch.clamp(alpha,min=bound_alpha[0],max=bound_alpha[1])
-
-        return alpha
 
 def f_ts(x, alpha, device):
     # -alpha*x不能超过85，否则overflow
@@ -487,17 +437,11 @@ if __name__ == '__main__':
     shuffled_indices = save_data_idx(dataset, opt)
     train_loader,val_loader,test_loader = get_data_loader(dataset, shuffled_indices, opt)
 
-    for i in running_times:
+    model = MLP_GT3_2().to(device)
+    # model_path = get_model_save_path(opt.ARTIFICIAL, seed)
+    # torch.save(model.state_dict(), model_path)
 
-        if opt.ARTIFICIAL:
-            model = MLP_2_1().to(device)  # put your model and data on the same computation device.
-        else:
-            model = MLP_2_1().to(device)
-
-        # model_path = get_model_save_path(opt.ARTIFICIAL, seed)
-        # torch.save(model.state_dict(), model_path)
-
-        total_test_metric,GT_metric = trainer(train_loader, val_loader, test_loader, model, opt, device)
-        print(f"========== IN Test dataset, NN Model:  {total_test_metric.detach().cpu().numpy()} ==========")
-        print(f"========== IN Test dataset, the GTs: {GT_metric.detach().cpu().numpy()} ==========")
-        print(f"========== IN Test dataset, the GTs: GT1,GT2(common),GT2(SA) ==========")
+    total_test_metric,GT_metric = trainer(train_loader, val_loader, test_loader, model, opt, device)
+    print(f"========== IN Test dataset, NN Model:  {total_test_metric.detach().cpu().numpy()} ==========")
+    print(f"========== IN Test dataset, the GTs: {GT_metric.detach().cpu().numpy()} ==========")
+    print(f"========== IN Test dataset, the GTs: GT1,GT2(common),GT2(SA) ==========")

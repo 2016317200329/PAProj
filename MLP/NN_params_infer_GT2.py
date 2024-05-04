@@ -37,10 +37,18 @@ def get_model_opt(MODEL_NAME):
 parser = argparse.ArgumentParser(description="Run the script with a specific seed.")
 # 添加seed参数
 parser.add_argument("--seed", type=int, required=True, help="Random seed for reproducibility.")
+parser.add_argument("--MODEL_NAME", type=str, required=True, help="Model name.")
+
 # 解析命令行参数
 args = parser.parse_args()
 seed = args.seed
 MODEL_NAME = args.MODEL_NAME
+
+MODEL_LIST = ["InferNet_GT2","InferNet_GT3"]
+
+if MODEL_NAME not in MODEL_NAME:
+    print(f"WRONG MODEL NAME of {MODEL_NAME}")
+    exit(0)
 
 ######################### Carefully Check ####################
 from Config import config_GT2
@@ -52,14 +60,9 @@ opt = get_model_opt(MODEL_NAME)['opt']
 # conda activate
 # D:
 # cd D:\Desktop\PROJ\PAProj
-# foreach ($i in 625) { D:\Anaconda\python.exe "MLP\NN_params_infer_GT3.py" --seed $i }
-
-# for %i in (62 149 508) do D:\Anaconda\python.exe "MLP\NN_params_infer_GT2.py" --seed %i
+# foreach ($i in 3,31,62,204,223,407,508,626) { D:\Anaconda\python.exe "MLP\NN_params_infer_GT2.py" --seed $i --MODEL_NAME "InferNet_GT2" }
 
 EPOCH_NUM = opt.EPOCH_NUM
-# seed = 512  # 712
-# seed = opt.seed
-# EPOCH_NUM = 25
 
 ######################### Carefully Check ####################
 
@@ -463,13 +466,13 @@ def loss_fn_InferNet_GT3(input_data, Alpha, Target_data, eps, device):
 def validate_params(mlp, data_loader, eps, device, MODEL_NAME):
 
     NLL_sum = torch.tensor(0., device=device, requires_grad=False)
-    KL_sum = torch.tensor(0., device=device, requires_grad=False)
-    GT_metric = torch.tensor([0.,0.,0.]).reshape(1,-1)
+    # KL_sum = torch.tensor(0., device=device, requires_grad=False)
+    # GT_metric = torch.tensor([0.,0.,0.]).reshape(1,-1)
 
     cnt = 0
     for batch_id, data in enumerate(data_loader):
 
-        input_data, target_metric,_, target_params_data, _, metric_data= data
+        input_data, target_metric,_, setting= data
 
         # print(f"---- {batch_id} batch----")
         # Do the inference
@@ -487,7 +490,7 @@ def validate_params(mlp, data_loader, eps, device, MODEL_NAME):
             Alpha = mlp(input_data)
             Alpha = Alpha.detach().cpu().numpy()
 
-        GT_metric += torch.sum(metric_data,dim=0)
+        # GT_metric += torch.sum(metric_data,dim=0)
         cnt += len(input_data)  # 累加起来data_loader中所有的样本数
 
         for i in range(len(Alpha)):
@@ -558,7 +561,7 @@ def trainer(MODEL_NAME, train_loader, val_loader, test_loader, mlp, opt, device)
         epoch_train_loss = 0
 
         for batch_id, data in enumerate(train_loader):
-            input_data, _, target_loss, _, _, _ = data
+            input_data, _, target_loss, setting = data
             # Do the inference
             input_data = input_data.to(device)
             target_loss = target_loss.to(device)
