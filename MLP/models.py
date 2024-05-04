@@ -177,37 +177,37 @@ class Conv_1_4_dilated(nn.Module):
 
 
 
-class MLP_1_1(nn.Module):
-    '''
-    This is a 2-layer net for GT2 to infer parameters.
-
-    '''
-    # code->generate->override methods
-    def __init__(self) -> None:
-        super().__init__()
-        self.BN1 = nn.BatchNorm1d(num_features=8, affine=True)
-
-        self.block_alpha = nn.Sequential(
-            nn.Linear(8, 1),
-            nn.Tanh()
-        )
-        self.block_labda = nn.Sequential(
-            nn.Linear(8, 1),
-            nn.ReLU()
-        )
-
-    def forward(self, x):
-        x = torch.squeeze(x, dim=1)  # [B,C,N]->[B,N]，因为C=1
-        x = self.BN1(x)
-
-        alpha = self.block_alpha(x)
-        labda = self.block_labda(x)
-
-        # Clamp
-        alpha = torch.clamp(alpha, min=bound_alpha[0], max=bound_alpha[1])
-        labda = torch.clamp(labda, min=bound_labda[0], max=bound_labda[1])
-
-        return alpha, labda
+# class MLP_1_1(nn.Module):
+#     '''
+#     This is a 2-layer net for GT2 to infer parameters.
+#
+#     '''
+#     # code->generate->override methods
+#     def __init__(self) -> None:
+#         super().__init__()
+#         self.BN1 = nn.BatchNorm1d(num_features=8, affine=True)
+#
+#         self.block_alpha = nn.Sequential(
+#             nn.Linear(8, 1),
+#             nn.Tanh()
+#         )
+#         self.block_labda = nn.Sequential(
+#             nn.Linear(8, 1),
+#             nn.ReLU()
+#         )
+#
+#     def forward(self, x):
+#         x = torch.squeeze(x, dim=1)  # [B,C,N]->[B,N]，因为C=1
+#         x = self.BN1(x)
+#
+#         alpha = self.block_alpha(x)
+#         labda = self.block_labda(x)
+#
+#         # Clamp
+#         alpha = torch.clamp(alpha, min=bound_alpha[0], max=bound_alpha[1])
+#         labda = torch.clamp(labda, min=bound_labda[0], max=bound_labda[1])
+#
+#         return alpha, labda
 
 
 class MLP_2_1(nn.Module):
@@ -245,30 +245,30 @@ class MLP_2_1(nn.Module):
 
         return alpha,labda
 
-class MLP_GT3_1(nn.Module):
-    '''
-    This is a 2-layer net for GT3 to infer parameters.
-    '''
-    # code->generate->override methods
-    def __init__(self) -> None:
-        super().__init__()
-        self.BN1 = nn.BatchNorm1d(num_features=8, affine=True)
-
-        self.block_alpha = nn.Sequential(
-            nn.Linear(8, 1),
-            nn.Tanh()
-        )
-
-    def forward(self, x):
-        x = torch.squeeze(x, dim=1)
-        x = self.BN1(x)
-
-        alpha = self.block_alpha(x)
-
-        # Clamp
-        alpha = torch.clamp(alpha, min=bound_alpha[0], max=bound_alpha[1])
-
-        return alpha
+# class MLP_GT3_1(nn.Module):
+#     '''
+#     This is a 2-layer net for GT3 to infer parameters.
+#     '''
+#     # code->generate->override methods
+#     def __init__(self) -> None:
+#         super().__init__()
+#         self.BN1 = nn.BatchNorm1d(num_features=8, affine=True)
+#
+#         self.block_alpha = nn.Sequential(
+#             nn.Linear(8, 1),
+#             nn.Tanh()
+#         )
+#
+#     def forward(self, x):
+#         x = torch.squeeze(x, dim=1)
+#         x = self.BN1(x)
+#
+#         alpha = self.block_alpha(x)
+#
+#         # Clamp
+#         alpha = torch.clamp(alpha, min=bound_alpha[0], max=bound_alpha[1])
+#
+#         return alpha
 
 class MLP_GT3_2(nn.Module):
     '''

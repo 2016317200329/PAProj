@@ -28,7 +28,7 @@ MODEL_NAME = args.MODEL_NAME
 
 # seed = 62
 # MODEL_NAME = "GT3+EMD"
-if MODEL_NAME == "GT1+GT2":
+if MODEL_NAME == "GT1+GT2" or "GT1_GT2_sft_bidfee" or "GT1_GT2_sft_bidinc":
     INPUT_LIST = [1,2]
 elif MODEL_NAME == "GT1+GT3":
     INPUT_LIST=[1,3]
@@ -274,8 +274,8 @@ if __name__ == '__main__':
 
     dataset = myDataset(opt.train_path, opt.target_path_metric, opt.target_path_loss, opt.data_key_path)
 
-    shuffled_indices = save_data_idx(dataset, opt.arr_flag)
-    train_idx, val_idx, test_idx = get_data_idx(shuffled_indices,opt.train_pct, opt.vali_pct)
+    train_idx, val_idx, test_idx = get_data_idx_from_MODEL_NAME(dataset, MODEL_NAME, opt)
+
     my_collate_fn = functools.partial(my_collate_fn_3, INPUT_LIST=INPUT_LIST)
     train_loader,val_loader,test_loader = get_data_loader(dataset, opt.batch_size, train_idx, val_idx, test_idx, my_collate_fn)
 

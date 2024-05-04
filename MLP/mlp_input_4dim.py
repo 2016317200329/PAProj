@@ -191,8 +191,8 @@ if __name__ == '__main__':
     dataset = myDataset(opt.train_path, opt.target_path_metric, opt.target_path_loss, opt.data_key_path)
     # dataset_revenue = myDataset_revenue(opt.target_path_metric, opt.target_revenue_path)
 
-    shuffled_indices = save_data_idx(dataset, opt.arr_flag)
-    train_idx, val_idx, test_idx = get_data_idx(shuffled_indices,opt.train_pct, opt.vali_pct)
+    train_idx, val_idx, test_idx = get_data_idx_from_MODEL_NAME(dataset, MODEL_NAME, opt)
+
     my_collate_fn = functools.partial(my_collate_fn_3, INPUT_LIST=INPUT_LIST)
     train_loader,val_loader,test_loader = get_data_loader(dataset, opt.batch_size, train_idx, val_idx, test_idx, my_collate_fn)
 

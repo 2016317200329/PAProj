@@ -26,7 +26,7 @@ MODEL_NAME = args.MODEL_NAME
 # MODEL_NAME = "GT1_GT2_GT3"
 if MODEL_NAME == "GT1_GT2_GT3":
     INPUT_LIST = [1, 2, 3]  # 注意和MODEL_NAME要对应起来！
-elif MODEL_NAME == "GT1_GT2_EMD":
+elif MODEL_NAME == "GT1_GT2_EMD" or "GT1_GT2_EMD_sft_bidfee" or "GT1_GT2_EMD_sft_bidinc":
     INPUT_LIST = [1, 2, 4]  # 注意和MODEL_NAME要对应起来！
 elif MODEL_NAME == "GT1_GT3_EMD":
     INPUT_LIST=[1, 3, 4]  # 注意和MODEL_NAME要对应起来！
@@ -173,8 +173,9 @@ if __name__ == '__main__':
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     dataset = myDataset(opt.train_path, opt.target_path_metric, opt.target_path_loss, opt.data_key_path)
-    shuffled_indices = save_data_idx(dataset, opt.arr_flag)
-    train_idx, val_idx, test_idx = get_data_idx(shuffled_indices, opt.train_pct, opt.vali_pct)
+
+    train_idx, val_idx, test_idx = get_data_idx_from_MODEL_NAME(dataset, MODEL_NAME, opt)
+
     my_collate_fn = functools.partial(my_collate_fn_3, INPUT_LIST = INPUT_LIST)
     train_loader,val_loader,test_loader = get_data_loader(dataset, batch_size, train_idx, val_idx, test_idx, my_collate_fn)
 

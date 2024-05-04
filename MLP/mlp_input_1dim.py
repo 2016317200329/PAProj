@@ -33,7 +33,7 @@ elif MODEL_NAME == "GT2(MDN)":
     INPUT_LIST=[2]
 elif MODEL_NAME == "GT3":
     INPUT_LIST=[3]
-elif MODEL_NAME == "EMD":
+elif MODEL_NAME == "EMD" or "EMD_sft_bidfee" or "EMD_sft_bidinc" :
     INPUT_LIST=[4]
 else:
     assert f"Wrong Model Name! The Name Has to be One of {MODEL_LIST}"
@@ -257,8 +257,8 @@ if __name__ == '__main__':
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     dataset = myDataset(opt.train_path, opt.target_path_metric, opt.target_path_loss, opt.data_key_path)
 
-    shuffled_indices = save_data_idx(dataset, opt.arr_flag)
-    train_idx, val_idx, test_idx = get_data_idx(shuffled_indices, opt.train_pct, opt.vali_pct)
+    train_idx, val_idx, test_idx = get_data_idx_from_MODEL_NAME(dataset, MODEL_NAME, opt)
+
     my_collate_fn = functools.partial(my_collate_fn_3, INPUT_LIST=INPUT_LIST)
 
     train_loader,val_loader,test_loader = get_data_loader(dataset, batch_size, train_idx, val_idx, test_idx, my_collate_fn)

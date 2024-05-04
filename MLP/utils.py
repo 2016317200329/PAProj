@@ -44,7 +44,6 @@ def save_data_idx(dataset, arr_flag=False, arr_path=None):
     # 使用指定的data
     else:
         shuffled_indices = np.load(arr_path)
-        # DATA_len = len(shuffled_indices)
         np.random.shuffle(shuffled_indices)
 
     return shuffled_indices
@@ -78,6 +77,21 @@ def get_data_idx(shuffled_indices,train_pct, vali_pct):
     test_idx = shuffled_indices[int(train_pct * DATA_len):tmp]
     val_idx = shuffled_indices[tmp:]  # 10 % for validation
     return train_idx,val_idx,test_idx
+
+def get_data_idx_from_MODEL_NAME(dataset, MODEL_NAME, opt):
+
+    shuffled_indices = save_data_idx(dataset, opt.arr_flag)
+
+    if "sft_bidfee" in MODEL_NAME:
+        train_idx,val_idx,test_idx = get_data_idx_bidfee(shuffled_indices, opt, FEE=0.01)
+    elif "sft_bidinc" in MODEL_NAME:
+        train_idx,val_idx,test_idx = get_data_idx_bidinc(shuffled_indices, opt, INC=0.01)
+    elif "sft" in MODEL_NAME:
+        print(f"MODEL_NAME = {MODEL_NAME}. This is WRONG!")
+    else:
+        train_idx, val_idx, test_idx = get_data_idx(shuffled_indices, opt.train_pct, opt.vali_pct)
+
+    return train_idx, val_idx, test_idx
 
 def get_data_loader(dataset, batch_size, train_idx,val_idx,test_idx , collate_fn):
     """
@@ -334,7 +348,7 @@ def save_performance(ARTIFICIAL, seed, MODEL_NAME, performance, metric_list):
     metric_pd.reset_index(inplace=True)
 
     metric_output_name = get_metric_save_path(ARTIFICIAL, MODEL_NAME)
-
+    print(f"metric_output_name = {metric_output_name}")
     if os.path.exists(metric_output_name):
         existing_metric = pd.read_csv(metric_output_name)
         updated_metric = pd.concat([existing_metric, metric_pd], ignore_index=True, axis=0)
